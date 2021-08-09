@@ -1,31 +1,36 @@
 import 'dart:core';
 import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:graphsleepcalc/config/themes/theme_manager.dart';
 import 'package:intl/intl.dart';
 
 class SleepCycleGraph extends StatelessWidget {
-  final double pxWidth;
-  final double pxHeight;
+  final double _pxWidth;
+  final double _pxHeight;
   static const double _minXAxis = 0; // Each unit of x is an hour
   static const double _maxXAxis = 10;
   static const double _minYAxis = 0;
   static const double _maxYAxis = 20;
   static const double _sleepCycleAmplitude = (_maxYAxis - _minYAxis) * 0.25;
   static const double _sleepCycleLength = 1.5;
+  static final Color _textColor = ThemeManager.theme.textColor;
+  static final Color _gridColor = ThemeManager.theme.accentColor;
+  static final List<Color> _graphColors = [ThemeManager.theme.accentColor];
+  static final List<Color> _graphShadeColors = [ThemeManager.theme.accentColor]
+      .map((color) => color.withOpacity(0.3))
+      .toList();
 
-  SleepCycleGraph({this.pxWidth, this.pxHeight});
+  SleepCycleGraph({double pxWidth, double pxHeight})
+      : _pxWidth = pxWidth,
+        _pxHeight = pxHeight;
 
   VerticalLine drawVerticalLine(double xPos) {
     return VerticalLine(
       x: xPos,
       strokeWidth: 0.5,
-      // label: VerticalLineLabel(
-      //   show: true,
-      //   // style: TextStyle()
-      //   alignment: Alignment.bottomCenter,
-      // ),
+      color: _gridColor,
     );
   }
 
@@ -46,15 +51,16 @@ class SleepCycleGraph extends StatelessWidget {
     }
 
     return LineChartBarData(
+      colors: _graphColors,
+      isCurved: true,
+      spots: sleepCycleSpots,
       belowBarData: BarAreaData(
         show: true,
-        colors: [Colors.blue].map((color) => color.withOpacity(0.3)).toList(),
+        colors: _graphShadeColors,
       ),
       dotData: FlDotData(
         checkToShowDot: (dot, chart) => showSleepCycleDot(dot, chart),
       ),
-      isCurved: true,
-      spots: sleepCycleSpots,
     );
   }
 
@@ -81,45 +87,53 @@ class SleepCycleGraph extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => InteractiveViewer(
-        constrained: false,
-        scaleEnabled: false,
-        child: Container(
-          width: pxWidth,
-          height: pxHeight,
-          child: Padding(
-              padding: const EdgeInsets.only(top: 22.0, right: 20, left: 15),
-              child: LineChart(
-                LineChartData(
-                  minX: _minXAxis,
-                  maxX: _maxXAxis,
-                  minY: _minYAxis,
-                  maxY: _maxYAxis,
-                  // showingTooltipIndicators: ,
-                  lineBarsData: [
-                    drawSleepCycleGraph(),
-                  ],
-                  extraLinesData: ExtraLinesData(verticalLines: [
-                    drawVerticalLine(1.5),
-                    drawVerticalLine(3),
-                  ]),
-                  titlesData: FlTitlesData(
-                    show: true,
-                    bottomTitles: SideTitles(
-                      showTitles: true,
-                      interval: _sleepCycleLength * 0.5,
-                      // getTextStyles: // TODO
-                      getTitles: (value) => xAxisToTime(value),
-                    ),
-                    leftTitles: SideTitles(
-                      showTitles: true,
-                      getTitles: (value) => yAxisToAwakeLevel(value),
-                      reservedSize: 30,
-                      // getTextStyles: // TODO
-                    ),
+  Widget build(BuildContext context) {
+    TextStyle sideTitleTextStyle = TextStyle(
+      fontSize: 11,
+      color: _textColor,
+    );
+
+    return InteractiveViewer(
+      constrained: false,
+      scaleEnabled: false,
+      child: Container(
+        width: _pxWidth,
+        height: _pxHeight,
+        child: Padding(
+            padding: const EdgeInsets.only(top: 22.0, right: 20, left: 15),
+            child: LineChart(
+              LineChartData(
+                minX: _minXAxis,
+                maxX: _maxXAxis,
+                minY: _minYAxis,
+                maxY: _maxYAxis,
+                // showingTooltipIndicators: ,
+                lineBarsData: [
+                  drawSleepCycleGraph(),
+                ],
+                extraLinesData: ExtraLinesData(verticalLines: [
+                  drawVerticalLine(1.5),
+                  drawVerticalLine(3),
+                ]),
+                titlesData: FlTitlesData(
+                  show: true,
+                  bottomTitles: SideTitles(
+                    showTitles: true,
+                    interval: _sleepCycleLength * 0.5,
+                    // getTextStyles: // TODO
+                    getTitles: (value) => xAxisToTime(value),
+                    getTextStyles: (value) => sideTitleTextStyle,
+                  ),
+                  leftTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 30,
+                    getTitles: (value) => yAxisToAwakeLevel(value),
+                    getTextStyles: (value) => sideTitleTextStyle,
                   ),
                 ),
-              )),
-        ),
-      );
+              ),
+            )),
+      ),
+    );
+  }
 }

@@ -16,7 +16,7 @@ class HomeScreen extends StatelessWidget {
           Spacer(),
         ],
       ),
-      decoration: BoxDecoration(color: Colors.greenAccent),
+      // decoration: BoxDecoration(color: Colors.greenAccent),
     ),
   );
 }
