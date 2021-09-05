@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:graphsleepcalc/widgets/sleep_cycle_graph.dart';
+import 'package:graphsleepcalc/widgets/sleep_graph/sleep_graph.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -11,7 +12,8 @@ class HomeScreen extends StatelessWidget {
           Spacer(),
           Expanded(
             flex:4,
-            child: SleepCycleGraph(pxWidth: 800, pxHeight: 400),
+            // child: SleepCycleGraph(pxWidth: 800, pxHeight: 400),
+            child: SleepGraph(),
           ),
           Spacer(),
         ],
