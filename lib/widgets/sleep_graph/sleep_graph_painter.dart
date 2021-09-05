@@ -58,47 +58,71 @@ class SleepGraphPainter {
   }
 
   void _paintGraph(Canvas canvas, Size size) {
-    _paintMoon(canvas, size);
-    _paintSun(canvas, size);
+    _paintSleepSentinel(canvas, size);
+    _paintWakeSentinel(canvas, size);
   }
 
-  void _paintMoon(Canvas canvas, Size size) {
-    // TODO refactor so moon and sun are sized from the same variable
-    final moonDiameter = 35.0;
-    final moonRadius = moonDiameter / 2;
-    final Offset moonOffset = Offset(100, 100);
-    final bigCraterRadius = moonRadius * 0.3;
-    final Offset bigCraterOffset
-        = moonOffset.translate(moonDiameter * -1/10, moonDiameter * -1/6);
-    final mediumCraterRadius = moonRadius * 0.2;
-    final Offset mediumCraterOffset
-        = moonOffset.translate(moonDiameter * 1/8, moonDiameter * 1/8);
-    final smallCraterRadius = moonRadius * 0.15;
-    final Offset smallCraterOffset
-        = moonOffset.translate(moonDiameter * 1/3.5, moonDiameter * -1/10);
-
+  void _paintSleepSentinel(Canvas canvas, Size size) {
+    final Offset offset = Offset(100, 100);
     final Paint moonPaint = Paint()
       ..color = Colors.grey[300]
-      ..style = PaintingStyle.fill;
+      ..style = PaintingStyle.fill
+      ..strokeWidth = 2.5;
     final Paint craterPaint = Paint()
       ..color = Colors.grey[600]
       ..style = PaintingStyle.fill;
+
+    _paintMoon(canvas, size, offset, moonPaint, craterPaint);
+    _paintLineUnderGraph(canvas, size, offset, moonPaint);
+  }
+
+  void _paintWakeSentinel(Canvas canvas, Size size) {
+    final Offset offset = Offset(200, 100);
+    final Paint sunPaint = Paint()
+      ..color = Colors.yellow[600]
+      ..style = PaintingStyle.fill
+      ..strokeWidth = 2.5;
+
+    _paintSun(canvas, size, offset, sunPaint);
+    _paintLineUnderGraph(canvas, size, offset, sunPaint);
+  }
+
+  void _paintMoon(Canvas canvas, Size size, Offset offset, Paint bodyPaint, Paint craterPaint) {
+    // TODO refactor so moon and sun are sized from the same variable
+    final moonDiameter = 35.0;
+    final moonRadius = moonDiameter / 2;
+    final bigCraterRadius = moonRadius * 0.3;
+    final Offset bigCraterOffset
+        = offset.translate(moonDiameter * -1/10, moonDiameter * -1/6);
+    final mediumCraterRadius = moonRadius * 0.2;
+    final Offset mediumCraterOffset
+        = offset.translate(moonDiameter * 1/8, moonDiameter * 1/8);
+    final smallCraterRadius = moonRadius * 0.15;
+    final Offset smallCraterOffset
+        = offset.translate(moonDiameter * 1/3.5, moonDiameter * -1/10);
     
-    canvas.drawCircle(moonOffset, moonRadius, moonPaint);
+    canvas.drawCircle(offset, moonRadius, bodyPaint);
     canvas.drawCircle(bigCraterOffset, bigCraterRadius, craterPaint);
     canvas.drawCircle(mediumCraterOffset, mediumCraterRadius, craterPaint);
     canvas.drawCircle(smallCraterOffset, smallCraterRadius, craterPaint);
   }
 
-  void _paintSun(Canvas canvas, Size size) {
+  void _paintSun(Canvas canvas, Size size, Offset offset, Paint bodyPaint) {
     final sunDiameter = 35.0;
     final sunRadius = sunDiameter / 2;
-    final Offset sunOffset = Offset(200, 100);
 
-    final Paint sunPaint = Paint()
-      ..color = Colors.yellow[600]
-      ..style = PaintingStyle.fill;
+    canvas.drawCircle(offset, sunRadius, bodyPaint);
+  }
 
-    canvas.drawCircle(sunOffset, sunRadius, sunPaint);
+  void _paintLineUnderGraph(Canvas canvas, Size size, Offset offset, Paint paint) {
+    double dx = offset.dx;
+    double y1 = _sleepGraphYatX(dx);
+    double y2 = 300; // TODO set to bottom of graph
+    canvas.drawLine(Offset(dx, y1), Offset(dx, y2), paint);
+  }
+
+  // TODO Caluclate the y value of the sleep graph at x
+  double _sleepGraphYatX(double x) {
+    return 125;
   }
 }
