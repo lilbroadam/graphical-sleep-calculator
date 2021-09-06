@@ -2,20 +2,93 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:graphsleepcalc/config/themes/theme_manager.dart';
 
+class SleepGraphPainterData {
+  double moonX = 100;
+  double sunX = 100;
+}
+
+class Drawable {
+  static List<Drawable> _drawables = [];
+
+  String name;
+  bool interactable = false; // TODO change to isInteractable
+  double x, y, width, height;
+  double hitBoxMargin = 10;
+  
+  Drawable(this.name, this.interactable, this.x, this.y, this.width, this.height);
+
+  Offset get offset => Offset(x, y);
+  Size get size => Size(width, height);
+
+  bool isHit(Offset offset) {
+    // TODO (x + width - offset.dx).abs()
+    return (x - offset.dx).abs() < hitBoxMargin
+        && (y - offset.dy).abs() < hitBoxMargin;
+  }
+
+  static add(Drawable drawable) {
+    _drawables.add(drawable);
+  }
+
+  static get(String name) {
+    for (Drawable drawable in _drawables) {
+      if (drawable.name == name) {
+        return drawable;
+      }
+    }
+    return null;
+  }
+
+  // TODO add iterator
+}
+
 class SleepGraphPainter {
 
   Paint _backgroundPaint;
   Paint _borderPaint;
+  Paint _moonPaint;
+  Paint _moonCraterPaint;
+  Paint _sunPaint;
 
-  SleepGraphPainter() {
+  SleepGraphPainterData _data;
+
+  static const String MOON_DRAWABLE = 'moon_drawable';
+  static const String SUN_DRAWABLE = 'sun_drawable';
+
+  static const double SENTINEL_DIAMETER = 35.0;
+  static const double SENTINEL_RADIUS = SENTINEL_DIAMETER / 2;
+
+  // TODO these are temporary. Values should be set by constraints.
+  static const double Y_MIN = 100;
+  static const double Y_MAX = 300;
+
+  SleepGraphPainter(SleepGraphPainterData data) {
+    _data = data;
+
+    // Initialize drawables
+    Drawable.add(
+      Drawable(MOON_DRAWABLE, true, _data.moonX, Y_MIN, 35.0, 35.0));
+    Drawable.add(
+      Drawable(SUN_DRAWABLE, true, _data.sunX, Y_MIN, 35.0, 35.0));
+
+    // Initialize paints
     _backgroundPaint = Paint()
       ..color = ThemeManager.theme.backgroundColor
       ..style = PaintingStyle.fill;
-
     _borderPaint = Paint()
-      ..color = Colors.white
       ..style = PaintingStyle.stroke
       ..strokeWidth = 5;
+    _moonPaint = Paint()
+      ..color = Colors.grey[300]
+      ..style = PaintingStyle.fill
+      ..strokeWidth = 2.5;
+    _moonCraterPaint = Paint()
+      ..color = Colors.grey[600]
+      ..style = PaintingStyle.fill;
+    _sunPaint = Paint()
+      ..color = Colors.yellow[600]
+      ..style = PaintingStyle.fill
+      ..strokeWidth = 2.5;
   }
 
   void paint(Canvas canvas, Size size) {
@@ -63,66 +136,60 @@ class SleepGraphPainter {
   }
 
   void _paintSleepSentinel(Canvas canvas, Size size) {
-    final Offset offset = Offset(100, 100);
-    final Paint moonPaint = Paint()
-      ..color = Colors.grey[300]
-      ..style = PaintingStyle.fill
-      ..strokeWidth = 2.5;
-    final Paint craterPaint = Paint()
-      ..color = Colors.grey[600]
-      ..style = PaintingStyle.fill;
-
-    _paintMoon(canvas, size, offset, moonPaint, craterPaint);
-    _paintLineUnderGraph(canvas, size, offset, moonPaint);
+    final Offset offset = Drawable.get(MOON_DRAWABLE).offset;
+    _paintMoon(canvas, size, offset, _moonPaint, _moonCraterPaint);
+    _paintLineUnderGraph(canvas, size, offset, _moonPaint);
   }
 
   void _paintWakeSentinel(Canvas canvas, Size size) {
-    final Offset offset = Offset(200, 100);
-    final Paint sunPaint = Paint()
-      ..color = Colors.yellow[600]
-      ..style = PaintingStyle.fill
-      ..strokeWidth = 2.5;
-
-    _paintSun(canvas, size, offset, sunPaint);
-    _paintLineUnderGraph(canvas, size, offset, sunPaint);
+    final Offset offset = Drawable.get(SUN_DRAWABLE).offset;
+    _paintSun(canvas, size, offset, _sunPaint);
+    _paintLineUnderGraph(canvas, size, offset, _sunPaint);
   }
 
   void _paintMoon(Canvas canvas, Size size, Offset offset, Paint bodyPaint, Paint craterPaint) {
-    // TODO refactor so moon and sun are sized from the same variable
-    final moonDiameter = 35.0;
-    final moonRadius = moonDiameter / 2;
-    final bigCraterRadius = moonRadius * 0.3;
+    final bigCraterRadius = SENTINEL_RADIUS * 0.3;
     final Offset bigCraterOffset
-        = offset.translate(moonDiameter * -1/10, moonDiameter * -1/6);
-    final mediumCraterRadius = moonRadius * 0.2;
+        = offset.translate(SENTINEL_DIAMETER * -1/10, SENTINEL_DIAMETER * -1/6);
+    final mediumCraterRadius = SENTINEL_RADIUS * 0.2;
     final Offset mediumCraterOffset
-        = offset.translate(moonDiameter * 1/8, moonDiameter * 1/8);
-    final smallCraterRadius = moonRadius * 0.15;
+        = offset.translate(SENTINEL_DIAMETER * 1/8, SENTINEL_DIAMETER * 1/8);
+    final smallCraterRadius = SENTINEL_RADIUS * 0.15;
     final Offset smallCraterOffset
-        = offset.translate(moonDiameter * 1/3.5, moonDiameter * -1/10);
+        = offset.translate(SENTINEL_DIAMETER * 1/3.5, SENTINEL_DIAMETER * -1/9);
     
-    canvas.drawCircle(offset, moonRadius, bodyPaint);
+    canvas.drawCircle(offset, SENTINEL_RADIUS, bodyPaint);
     canvas.drawCircle(bigCraterOffset, bigCraterRadius, craterPaint);
     canvas.drawCircle(mediumCraterOffset, mediumCraterRadius, craterPaint);
     canvas.drawCircle(smallCraterOffset, smallCraterRadius, craterPaint);
   }
 
   void _paintSun(Canvas canvas, Size size, Offset offset, Paint bodyPaint) {
-    final sunDiameter = 35.0;
-    final sunRadius = sunDiameter / 2;
-
-    canvas.drawCircle(offset, sunRadius, bodyPaint);
+    canvas.drawCircle(offset, SENTINEL_RADIUS, bodyPaint);
   }
 
   void _paintLineUnderGraph(Canvas canvas, Size size, Offset offset, Paint paint) {
     double dx = offset.dx;
     double y1 = _sleepGraphYatX(dx);
-    double y2 = 300; // TODO set to bottom of graph
+    double y2 = Y_MAX; // TODO set to bottom of graph
     canvas.drawLine(Offset(dx, y1), Offset(dx, y2), paint);
   }
 
   // TODO Caluclate the y value of the sleep graph at x
   double _sleepGraphYatX(double x) {
     return 125;
+  }
+
+  void handleHorizontalTouch(Offset localPosition) {
+    // TODO use iterator
+    for (int i = 0; i < Drawable._drawables.length; i++) {
+      Drawable drawable = Drawable._drawables[i];
+      if (drawable.interactable) {
+        if (drawable.isHit(localPosition)) {
+          drawable.x = localPosition.dx;
+          break;
+        }
+      }
+    }
   }
 }

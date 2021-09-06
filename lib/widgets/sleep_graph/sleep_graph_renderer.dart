@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/rendering.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph/sleep_graph_painter.dart';
 
 class SleepGraphLeaf extends LeafRenderObjectWidget {
@@ -27,10 +29,23 @@ class SleepGraphLeaf extends LeafRenderObjectWidget {
 }
 
 class RenderSleepGraph extends RenderBox {
-  
-  RenderSleepGraph();
+  HorizontalDragGestureRecognizer _horizontalDragGesture; // TODO use 'late' keyword
+  SleepGraphPainterData _painterData;
+  SleepGraphPainter _painter;
 
-  // TODO overriding this is unnecessary?
+  RenderSleepGraph() {
+    _painterData = new SleepGraphPainterData()
+      ..moonX = 100
+      ..sunX = 200;
+    _painter = new SleepGraphPainter(_painterData);
+
+    _horizontalDragGesture = HorizontalDragGestureRecognizer()
+      ..onStart = (details) { _handleHorizontalTouch(details.localPosition); }
+      ..onUpdate = (details) { _handleHorizontalTouch(details.localPosition); };
+  }
+
+  /* RENDERING */
+
   @override
   void performLayout() {
     size = computeDryLayout(constraints);
@@ -42,8 +57,6 @@ class RenderSleepGraph extends RenderBox {
         Size(constraints.maxWidth, constraints.maxHeight));
   }
 
-  final _painter = SleepGraphPainter();
-
   @override
   void paint(PaintingContext context, Offset offset) {
     final canvas = context.canvas;
@@ -51,5 +64,24 @@ class RenderSleepGraph extends RenderBox {
     canvas.translate(offset.dx, offset.dy);
     _painter.paint(canvas, size);
     canvas.restore();
+  }
+
+  /* TOUCH */
+
+  @override
+  bool hitTestSelf(Offset position) => true;
+
+  @override
+  void handleEvent(PointerEvent event, BoxHitTestEntry entry) {
+    assert(debugHandleEvent(event, entry));
+    if (event is PointerDownEvent) {
+      _horizontalDragGesture.addPointer(event);
+    }
+  }
+
+  void _handleHorizontalTouch(Offset localPosition) {
+    _painter.handleHorizontalTouch(localPosition);
+    markNeedsPaint();
+    markNeedsSemanticsUpdate();
   }
 }
