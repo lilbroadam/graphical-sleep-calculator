@@ -30,14 +30,10 @@ class SleepGraphLeaf extends LeafRenderObjectWidget {
 
 class RenderSleepGraph extends RenderBox {
   HorizontalDragGestureRecognizer _horizontalDragGesture; // TODO use 'late' keyword
-  SleepGraphPainterData _painterData;
   SleepGraphPainter _painter;
 
   RenderSleepGraph() {
-    _painterData = new SleepGraphPainterData()
-      ..moonX = 100
-      ..sunX = 200;
-    _painter = new SleepGraphPainter(_painterData);
+    _painter = new SleepGraphPainter();
 
     _horizontalDragGesture = HorizontalDragGestureRecognizer()
       ..onStart = (details) { _handleHorizontalTouch(details.localPosition); }
