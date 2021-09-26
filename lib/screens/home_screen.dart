@@ -11,7 +11,7 @@ class HomeScreen extends StatelessWidget {
         children: <Widget>[
           Spacer(),
           Expanded(
-            flex:4,
+            flex: 3,
             // child: SleepCycleGraph(pxWidth: 800, pxHeight: 400),
             child: SleepGraph(),
           ),

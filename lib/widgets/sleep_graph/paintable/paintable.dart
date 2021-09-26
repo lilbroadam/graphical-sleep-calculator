@@ -5,11 +5,10 @@ import 'package:graphsleepcalc/widgets/sleep_graph/hit_event/hit_event.dart';
 abstract class Paintable {
 
   // TODO change to a comprehensive hitbox solution
-  bool isInteractable = true;
-  double hitBoxMargin = 25.0;
+  bool isInteractable;
   Offset offset;
 
-  Paintable ();
+  Paintable () : isInteractable = true;
 
   void paint(Canvas canvas, Size size);
 

@@ -1,16 +1,12 @@
 import 'package:flutter/gestures.dart';
 
 abstract class GestureEvent {
-
   get localPosition;
-
 }
 
 /* HORIZONATL DRAG EVENTS */
 
-abstract class HorizontalDragEvent extends GestureEvent {
-
-}
+abstract class HorizontalDragEvent extends GestureEvent {}
 
 class HorizontalDragStartEvent extends HorizontalDragEvent {
   DragStartDetails details;
@@ -37,18 +33,10 @@ class HorizontalDragCancelEvent extends HorizontalDragEvent {
 
 /* TAP EVENTS */
 
-// class TapEvent extends GestureEvent {
-  
-// }
+abstract class TapEvent extends GestureEvent {}
 
-class TapUpEvent extends GestureEvent {
+class TapUpEvent extends TapEvent {
   TapUpDetails details;
   get localPosition => details.localPosition;
   TapUpEvent(this.details);
 }
-
-/*
-DragStartDetails
-DragUpdateDetails
-TapUpDetails
-*/

@@ -4,66 +4,27 @@ import 'package:graphsleepcalc/config/themes/theme_manager.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph/hit_event/hit_event.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph/paintable/paintable.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph/paintable/sentinel.dart';
-import 'package:graphsleepcalc/widgets/sleep_graph/paintable/sleep_sentinel.dart';
-import 'package:graphsleepcalc/widgets/sleep_graph/paintable/wake_sentinel.dart';
-
-class Drawable {
-  static List<Drawable> _drawables = [];
-
-  String name;
-  bool interactable = false; // TODO change to isInteractable
-  double x, y, width, height;
-  double hitBoxMargin = 10;
-  
-  Drawable(this.name, this.interactable, this.x, this.y, this.width, this.height);
-
-  Offset get offset => Offset(x, y);
-  Size get size => Size(width, height);
-
-  bool isHit(Offset offset) {
-    // TODO (x + width - offset.dx).abs()
-    return (x - offset.dx).abs() < hitBoxMargin
-        && (y - offset.dy).abs() < hitBoxMargin;
-  }
-
-  static add(Drawable drawable) {
-    _drawables.add(drawable);
-  }
-
-  static get(String name) {
-    for (Drawable drawable in _drawables) {
-      if (drawable.name == name) {
-        return drawable;
-      }
-    }
-    return null;
-  }
-
-  // TODO add iterator
-}
 
 class SleepGraphPainter {
 
-  Paint _backgroundPaint;
-  Paint _borderPaint;
+  Paint _backgroundPaint = Paint()
+      ..color = ThemeManager.theme.backgroundColor
+      ..style = PaintingStyle.fill;
+  Paint _borderPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 5;
 
-  // TODO these are temporary. Values should be set by constraints.
-  static const double Y_MIN = 100;
-  static const double Y_MAX = 300;
+  SleepSentinel _sleepSentinel;
+  WakeSentinel _wakeSentinel;
 
   List<Paintable> _paintables = [];
 
   SleepGraphPainter() {
-    // Initialize paints
-    _backgroundPaint = Paint()
-      ..color = ThemeManager.theme.backgroundColor
-      ..style = PaintingStyle.fill;
-    _borderPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 5;
+    _sleepSentinel = SleepSentinel();
+    _wakeSentinel = WakeSentinel();
 
-    _paintables.add(WakeSentinel());
-    _paintables.add(SleepSentinel());
+    _paintables.add(_sleepSentinel);
+    _paintables.add(_wakeSentinel);
   }
 
   void paint(Canvas canvas, Size size) {
