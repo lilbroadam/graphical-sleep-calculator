@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
+import 'package:graphsleepcalc/widgets/sleep_graph/hit_event/hit_event.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph/sleep_graph_painter.dart';
 
 class SleepGraphLeaf extends LeafRenderObjectWidget {
@@ -29,15 +30,25 @@ class SleepGraphLeaf extends LeafRenderObjectWidget {
 }
 
 class RenderSleepGraph extends RenderBox {
-  HorizontalDragGestureRecognizer _horizontalDragGesture; // TODO use 'late' keyword
   SleepGraphPainter _painter;
+  HorizontalDragGestureRecognizer _horizontalDragGesture; // TODO use 'late' keyword
+  TapGestureRecognizer _tapGesture;
 
   RenderSleepGraph() {
     _painter = new SleepGraphPainter();
 
-    _horizontalDragGesture = HorizontalDragGestureRecognizer()
-      ..onStart = (details) { _handleHorizontalTouch(details.localPosition); }
-      ..onUpdate = (details) { _handleHorizontalTouch(details.localPosition); };
+    _horizontalDragGesture = HorizontalDragGestureRecognizer();
+    _horizontalDragGesture.onStart =
+        (details) => _onGestureEvent(HorizontalDragStartEvent(details));
+    _horizontalDragGesture.onUpdate =
+        (details) => _onGestureEvent(HorizontalDragUpdateEvent(details));
+    _horizontalDragGesture.onEnd =
+        (details) => _onGestureEvent(HorizontalDragEndEvent(details));
+    _horizontalDragGesture.onCancel = // TODO check this works as expected
+        () => _onGestureEvent(HorizontalDragCancelEvent());
+
+    _tapGesture = TapGestureRecognizer()
+      ..onTapUp = (details) => _onGestureEvent(TapUpEvent(details));
   }
 
   /* RENDERING */
@@ -72,11 +83,12 @@ class RenderSleepGraph extends RenderBox {
     assert(debugHandleEvent(event, entry));
     if (event is PointerDownEvent) {
       _horizontalDragGesture.addPointer(event);
+      _tapGesture.addPointer(event);
     }
   }
 
-  void _handleHorizontalTouch(Offset localPosition) {
-    _painter.handleHorizontalTouch(localPosition);
+  void _onGestureEvent(GestureEvent event) {
+    _painter.onGestureEvent(event);
     markNeedsPaint();
     markNeedsSemanticsUpdate();
   }

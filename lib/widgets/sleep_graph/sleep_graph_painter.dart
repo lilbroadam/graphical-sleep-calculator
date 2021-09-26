@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:graphsleepcalc/config/themes/theme_manager.dart';
+import 'package:graphsleepcalc/widgets/sleep_graph/hit_event/hit_event.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph/paintable/paintable.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph/paintable/sentinel.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph/paintable/sleep_sentinel.dart';
@@ -111,10 +112,11 @@ class SleepGraphPainter {
     return 125;
   }
 
-  void handleHorizontalTouch(Offset localPosition) {
+  void onGestureEvent(GestureEvent event) {
+    // print('Painter.onGestureEvent(${event.runtimeType})');
     for (Paintable paintable in _paintables) {
-      if(paintable.isHit(localPosition)) {
-        break;
+      if (paintable.hitTest(event)) {
+        paintable.onGestureEvent(event);
       }
     }
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:graphsleepcalc/widgets/sleep_graph/hit_event/hit_event.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph/paintable/sentinel.dart';
 
 class SleepSentinel extends Sentinel {
@@ -12,7 +13,7 @@ class SleepSentinel extends Sentinel {
 
   SleepSentinel () {
     // TODO set bodyPaint by calling super constructor
-    super.bodyPaint = Paint()
+    bodyPaint = Paint()
       ..color = Colors.grey[300]
       ..style = PaintingStyle.fill
       ..strokeWidth = 2.5;
@@ -39,5 +40,15 @@ class SleepSentinel extends Sentinel {
     canvas.drawCircle(bigCraterOffset, _bigCraterRadius, _craterPaint);
     canvas.drawCircle(mediumCraterOffset, _mediumCraterRadius, _craterPaint);
     canvas.drawCircle(smallCraterOffset, _smallCraterRadius, _craterPaint);
+  }
+
+  void onGestureEvent(GestureEvent event) {
+    print('SleepSentinel.onGestureEvent(${event.runtimeType})'); 
+    if (event is TapUpEvent) {
+      bodyPaint = Paint()
+        ..color = Colors.green;
+    } else if (event is HorizontalDragEvent) {
+      onHorizontalDragEvent(event);
+    }
   }
 }
