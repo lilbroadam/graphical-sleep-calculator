@@ -7,8 +7,6 @@ abstract class Sentinel extends Paintable {
   static const double SENTINEL_DIAMETER = 35.0;
   static const double SENTINEL_RADIUS = SENTINEL_DIAMETER / 2;
 
-  Paint _bodyPaint;
-
   // What sentinel is current being dragged. Null if no sentinel being dragged.
   // Necessary to account for delays between calls to hitTest() so it doesn't
   // return false when a dragged point moves outside of the hitbox between 
@@ -16,17 +14,23 @@ abstract class Sentinel extends Paintable {
   // only the position of the one being dragged is updated.
   Sentinel _draggingSentinel;
 
-  get bodyPaint => _bodyPaint;
+  // If this sentinel is currently toggled as locked.
+  bool isLocked;
 
-  set bodyPaint (Paint paint) {
-    _bodyPaint = paint;
+  // TODO have a way that ensures bodyPaint is initialized by children
+  Paint _bodyPaint;
+  get bodyPaint => _bodyPaint;
+  set bodyPaint (paint) => _bodyPaint = paint;
+
+  Sentinel () : isLocked = false;
+
+  /// Paint the body of this sentinel
+  void paint(Canvas canvas, Size size) {
+    _paintSentinelLine(canvas, size);
+    canvas.drawCircle(offset, Sentinel.SENTINEL_RADIUS, bodyPaint);
   }
 
-  Sentinel ();
-
-  void paint(Canvas canvas, Size size);
-
-  void paintSentinelLine(Canvas canvas, Size size) {
+  void _paintSentinelLine(Canvas canvas, Size size) {
     double dx = offset.dx;
     double y1 = 125.0; // TODO get line y from sleep graph
     double y2 = 300; // TODO get bottom y from slee graph
@@ -35,6 +39,7 @@ abstract class Sentinel extends Paintable {
 
   /// Returns true if [event] is within this Sentinel's hitbox.
   /// If hit, update location to [hitOffset].
+  // TODO handle case when sentinels are overlapping
   bool hitTest(GestureEvent event) {
     if (!isInteractable) {
       return false;
@@ -58,7 +63,7 @@ abstract class Sentinel extends Paintable {
 
   // TODO change to private method that children can call
   void onHorizontalDragEvent(HorizontalDragEvent event) {
-    print('Sentinel.onHorizontalDragEvent(${event.runtimeType})');
+    // print('Sentinel.onHorizontalDragEvent(${event.runtimeType})');
     Offset eventOffset = event.localPosition;
     if (event is HorizontalDragStartEvent) {
       _draggingSentinel = this;
