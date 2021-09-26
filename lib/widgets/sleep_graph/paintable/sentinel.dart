@@ -27,6 +27,7 @@ abstract class Sentinel extends Paintable {
   Sentinel () : isLocked = false;
 
   /// Paint the body of this sentinel
+  // TODO pass a GridData object so Paintables know where to paint themselves?
   @override
   void paint(Canvas canvas, Size size) {
     _paintSentinelLine(canvas, size);
@@ -37,7 +38,8 @@ abstract class Sentinel extends Paintable {
     double dx = offset.dx;
     double y1 = 125.0; // TODO get line y from sleep graph
     double y2 = 300; // TODO get bottom y from slee graph
-    canvas.drawLine(Offset(dx, y1), Offset(dx, y2), _bodyPaint);
+    // canvas.drawLine(Offset(dx, y1), Offset(dx, y2), _bodyPaint);
+    canvas.drawLine(Offset(dx, y1), Offset(dx, size.height), _bodyPaint);
   }
 
   /// Returns true if [event] is within this Sentinel's hitbox.

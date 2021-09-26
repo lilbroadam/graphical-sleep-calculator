@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 
 abstract class GestureEvent {
-  get localPosition;
+  Offset get localPosition;
 }
 
 /* HORIZONATL DRAG EVENTS */

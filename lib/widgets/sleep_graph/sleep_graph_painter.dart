@@ -7,12 +7,22 @@ import 'package:graphsleepcalc/widgets/sleep_graph/paintable/sentinel.dart';
 
 class SleepGraphPainter {
 
+  // TODO move into a GridData object?
+  double gridMinX;
+  double gridMaxX;
+  double gridMinY;
+  double gridMaxY;
+  double xAxisLabelSpacing = 70.0;
+  double yAxisLabelSpacing = 70.0;
+
+  static const BORDER_WIDTH = 5.0;
+
   Paint _backgroundPaint = Paint()
       ..color = ThemeManager.theme.backgroundColor
       ..style = PaintingStyle.fill;
   Paint _borderPaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 5;
+      ..strokeWidth = BORDER_WIDTH;
 
   SleepSentinel _sleepSentinel;
   WakeSentinel _wakeSentinel;
@@ -28,11 +38,19 @@ class SleepGraphPainter {
   }
 
   void paint(Canvas canvas, Size size) {
+    gridMinX = BORDER_WIDTH;
+    gridMaxX = size.width - BORDER_WIDTH;
+    gridMinY = BORDER_WIDTH;
+    gridMaxY = size.height - BORDER_WIDTH;
+
     _paintBackground(canvas, size);
     _paintBorder(canvas, size);
+    _paintGrid(canvas, size);
+
+    double yAxisY = gridMaxY - xAxisLabelSpacing - BORDER_WIDTH;
 
     for (Paintable paintable in _paintables) {
-      paintable.paint(canvas, size);
+      paintable.paint(canvas, Size(size.width, yAxisY));
     }
   }
 
@@ -68,12 +86,57 @@ class SleepGraphPainter {
     );
   }
 
+  // TODO break into paintGrid, paintXAxisLabels, paintYAxisLabels
+  void _paintGrid(Canvas canvas, Size size) {
+    double xAxisX = gridMinX + yAxisLabelSpacing + BORDER_WIDTH;
+    double xAxisYMin = gridMinY;
+    double xAxisYMax = gridMaxY;
+    double yAxisY = gridMaxY - xAxisLabelSpacing - BORDER_WIDTH;
+    double yAxisXMin = gridMinX;
+    double yAxisXMax = gridMaxX;
+
+    canvas.drawLine(
+      Offset(xAxisX, xAxisYMin),
+      Offset(xAxisX, yAxisY),
+      Paint()..color = Colors.white,
+    );
+    canvas.drawLine(
+      Offset(xAxisX, yAxisY),
+      Offset(yAxisXMax, yAxisY),
+      Paint()..color = Colors.white,
+    );
+
+    // paint REM level
+    // TODO paint text right-aligned
+    _paintText(canvas, size, 'Awake', Offset(gridMinX, 100));
+    _paintText(canvas, size, 'Asleep', Offset(gridMinX, 175));
+    _paintText(canvas, size, 'Deep sleep', Offset(gridMinX, 250));
+
+    // paint times
+    _paintText(canvas, size, '10:00pm', Offset(75, yAxisY));
+    _paintText(canvas, size, '11:30pm', Offset(150, yAxisY));
+    _paintText(canvas, size, '1:00am', Offset(215, yAxisY));
+  }
+
+  void _paintText(Canvas canvas, Size size, String text, Offset offset) {
+    TextPainter textPainter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(color: Colors.white), // TODO get from theme
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+    textPainter.paint(canvas, offset);
+  }
+
   // TODO Caluclate the y value of the sleep graph at x
   double _sleepGraphYatX(double x) {
     return 125;
   }
 
   void onGestureEvent(GestureEvent event) {
+    // TODO only handle gestures for paintables if gesture is within grid area
     // print('Painter.onGestureEvent(${event.runtimeType})');
     for (Paintable paintable in _paintables) {
       if (paintable.hitTest(event)) {
