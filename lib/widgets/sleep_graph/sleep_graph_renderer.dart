@@ -47,8 +47,8 @@ class RenderSleepGraph extends RenderBox {
     _horizontalDragGesture.onCancel = // TODO check this works as expected
         () => _onGestureEvent(HorizontalDragCancelEvent());
 
-    _tapGesture = TapGestureRecognizer()
-      ..onTapUp = (details) => _onGestureEvent(TapUpEvent(details));
+    _tapGesture = TapGestureRecognizer();
+    _tapGesture.onTapUp = (details) => _onGestureEvent(TapUpEvent(details));
   }
 
   /* RENDERING */

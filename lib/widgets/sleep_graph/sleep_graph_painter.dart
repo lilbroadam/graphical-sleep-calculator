@@ -5,24 +5,50 @@ import 'package:graphsleepcalc/widgets/sleep_graph/hit_event/hit_event.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph/paintable/paintable.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph/paintable/sentinel.dart';
 
-class SleepGraphPainter {
+class ChartData {
+  double borderWidth;
+  double timeLabelMargin;
+  double sleepLabelMargin;
 
-  // TODO move into a GridData object?
   double gridMinX;
   double gridMaxX;
   double gridMinY;
   double gridMaxY;
-  double xAxisLabelSpacing = 70.0;
-  double yAxisLabelSpacing = 70.0;
 
-  static const BORDER_WIDTH = 5.0;
+  double xAxisX;
+  double xAxisYMin;
+  double xAxisYMax;
+  double yAxisY;
+  double yAxisXMin;
+  double yAxisXMax;
 
-  Paint _backgroundPaint = Paint()
-      ..color = ThemeManager.theme.backgroundColor
-      ..style = PaintingStyle.fill;
-  Paint _borderPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = BORDER_WIDTH;
+  ChartData ({
+    this.borderWidth,
+    this.timeLabelMargin,
+    this.sleepLabelMargin,
+  });
+
+  void resize(Size size) {
+    gridMinX = borderWidth;
+    gridMaxX = size.width - borderWidth;
+    gridMinY = borderWidth;
+    gridMaxY = size.height - borderWidth;
+
+    xAxisX = gridMinX + sleepLabelMargin + borderWidth;
+    xAxisYMin = gridMinY;
+    xAxisYMax = gridMaxY;
+    yAxisY = gridMaxY - sleepLabelMargin - borderWidth;
+    yAxisXMin = gridMinX;
+    yAxisXMax = gridMaxX;
+  }
+}
+
+class SleepGraphPainter {
+
+  ChartData _chartData;
+
+  Paint _backgroundPaint;
+  Paint _borderPaint;
 
   SleepSentinel _sleepSentinel;
   WakeSentinel _wakeSentinel;
@@ -30,27 +56,34 @@ class SleepGraphPainter {
   List<Paintable> _paintables = [];
 
   SleepGraphPainter() {
+    _chartData = ChartData(
+      borderWidth: 2.5,
+      timeLabelMargin: 70.0,
+      sleepLabelMargin: 70.0,
+    );
+
+    _backgroundPaint = Paint()
+        ..color = ThemeManager.theme.backgroundColor
+        ..style = PaintingStyle.fill;
+    _borderPaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = _chartData.borderWidth;
+
     _sleepSentinel = SleepSentinel();
     _wakeSentinel = WakeSentinel();
-
     _paintables.add(_sleepSentinel);
     _paintables.add(_wakeSentinel);
   }
 
   void paint(Canvas canvas, Size size) {
-    gridMinX = BORDER_WIDTH;
-    gridMaxX = size.width - BORDER_WIDTH;
-    gridMinY = BORDER_WIDTH;
-    gridMaxY = size.height - BORDER_WIDTH;
+    _chartData.resize(size);
 
     _paintBackground(canvas, size);
     _paintBorder(canvas, size);
     _paintGrid(canvas, size);
 
-    double yAxisY = gridMaxY - xAxisLabelSpacing - BORDER_WIDTH;
-
     for (Paintable paintable in _paintables) {
-      paintable.paint(canvas, Size(size.width, yAxisY));
+      paintable.paint(canvas, Size(size.width, _chartData.yAxisY));
     }
   }
 
@@ -63,23 +96,10 @@ class SleepGraphPainter {
 
   void _paintBorder(Canvas canvas, Size size) {
     final strokeWidth = _borderPaint.strokeWidth;
-    final halfStrokeWidth = strokeWidth / 2;
-
-    // TODO corners aren't being drawn properly
-    // Offset topLeft = Offset(0 + halfStrokeWidth, 0);
-    // Offset topRight = Offset(size.width - halfStrokeWidth, 0);
-    // Offset bottomLeft = Offset(0 + halfStrokeWidth, size.height);
-    // Offset bottomRight = Offset(size.width - halfStrokeWidth, size.height);
-    // canvas.drawLine(topLeft, topRight, _borderPaint);
-    // canvas.drawLine(topRight, bottomRight, _borderPaint);
-    // canvas.drawLine(bottomRight, bottomLeft, _borderPaint);
-    // canvas.drawLine(bottomLeft, topLeft, _borderPaint);
-
-    // TODO make sure this is being draw accurately
     canvas.drawRect(
       Rect.fromLTWH(
-        0 + halfStrokeWidth,
-        0,
+        strokeWidth / 2,
+        strokeWidth / 2,
         size.width - strokeWidth,
         size.height - strokeWidth),
       _borderPaint
@@ -88,34 +108,27 @@ class SleepGraphPainter {
 
   // TODO break into paintGrid, paintXAxisLabels, paintYAxisLabels
   void _paintGrid(Canvas canvas, Size size) {
-    double xAxisX = gridMinX + yAxisLabelSpacing + BORDER_WIDTH;
-    double xAxisYMin = gridMinY;
-    double xAxisYMax = gridMaxY;
-    double yAxisY = gridMaxY - xAxisLabelSpacing - BORDER_WIDTH;
-    double yAxisXMin = gridMinX;
-    double yAxisXMax = gridMaxX;
-
     canvas.drawLine(
-      Offset(xAxisX, xAxisYMin),
-      Offset(xAxisX, yAxisY),
+      Offset(_chartData.xAxisX, _chartData.xAxisYMin),
+      Offset(_chartData.xAxisX, _chartData.yAxisY),
       Paint()..color = Colors.white,
     );
     canvas.drawLine(
-      Offset(xAxisX, yAxisY),
-      Offset(yAxisXMax, yAxisY),
+      Offset(_chartData.xAxisX, _chartData.yAxisY),
+      Offset(_chartData.yAxisXMax, _chartData.yAxisY),
       Paint()..color = Colors.white,
     );
 
     // paint REM level
     // TODO paint text right-aligned
-    _paintText(canvas, size, 'Awake', Offset(gridMinX, 100));
-    _paintText(canvas, size, 'Asleep', Offset(gridMinX, 175));
-    _paintText(canvas, size, 'Deep sleep', Offset(gridMinX, 250));
+    _paintText(canvas, size, 'Awake', Offset(_chartData.gridMinX, 100));
+    _paintText(canvas, size, 'Asleep', Offset(_chartData.gridMinX, 175));
+    _paintText(canvas, size, 'Deep sleep', Offset(_chartData.gridMinX, 250));
 
     // paint times
-    _paintText(canvas, size, '10:00pm', Offset(75, yAxisY));
-    _paintText(canvas, size, '11:30pm', Offset(150, yAxisY));
-    _paintText(canvas, size, '1:00am', Offset(215, yAxisY));
+    _paintText(canvas, size, '10:00pm', Offset(75, _chartData.yAxisY));
+    _paintText(canvas, size, '11:30pm', Offset(150, _chartData.yAxisY));
+    _paintText(canvas, size, '1:00am', Offset(215, _chartData.yAxisY));
   }
 
   void _paintText(Canvas canvas, Size size, String text, Offset offset) {
@@ -138,6 +151,7 @@ class SleepGraphPainter {
   void onGestureEvent(GestureEvent event) {
     // TODO only handle gestures for paintables if gesture is within grid area
     // print('Painter.onGestureEvent(${event.runtimeType})');
+
     for (Paintable paintable in _paintables) {
       if (paintable.hitTest(event)) {
         paintable.onGestureEvent(event);
