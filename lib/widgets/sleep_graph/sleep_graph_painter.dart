@@ -1,47 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:graphsleepcalc/config/themes/theme_manager.dart';
+import 'package:graphsleepcalc/widgets/sleep_graph/chart_data.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph/hit_event/hit_event.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph/paintable/paintable.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph/paintable/sentinel.dart';
-
-class ChartData {
-  double borderWidth;
-  double timeLabelMargin;
-  double sleepLabelMargin;
-
-  double gridMinX;
-  double gridMaxX;
-  double gridMinY;
-  double gridMaxY;
-
-  double xAxisX;
-  double xAxisYMin;
-  double xAxisYMax;
-  double yAxisY;
-  double yAxisXMin;
-  double yAxisXMax;
-
-  ChartData ({
-    this.borderWidth,
-    this.timeLabelMargin,
-    this.sleepLabelMargin,
-  });
-
-  void resize(Size size) {
-    gridMinX = borderWidth;
-    gridMaxX = size.width - borderWidth;
-    gridMinY = borderWidth;
-    gridMaxY = size.height - borderWidth;
-
-    xAxisX = gridMinX + sleepLabelMargin + borderWidth;
-    xAxisYMin = gridMinY;
-    xAxisYMax = gridMaxY;
-    yAxisY = gridMaxY - sleepLabelMargin - borderWidth;
-    yAxisXMin = gridMinX;
-    yAxisXMax = gridMaxX;
-  }
-}
 
 class SleepGraphPainter {
 
@@ -69,8 +32,8 @@ class SleepGraphPainter {
         ..style = PaintingStyle.stroke
         ..strokeWidth = _chartData.borderWidth;
 
-    _sleepSentinel = SleepSentinel();
-    _wakeSentinel = WakeSentinel();
+    _sleepSentinel = SleepSentinel(_chartData);
+    _wakeSentinel = WakeSentinel(_chartData);
     _paintables.add(_sleepSentinel);
     _paintables.add(_wakeSentinel);
   }
@@ -141,11 +104,6 @@ class SleepGraphPainter {
     );
     textPainter.layout();
     textPainter.paint(canvas, offset);
-  }
-
-  // TODO Caluclate the y value of the sleep graph at x
-  double _sleepGraphYatX(double x) {
-    return 125;
   }
 
   void onGestureEvent(GestureEvent event) {

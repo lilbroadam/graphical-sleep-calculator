@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:graphsleepcalc/widgets/sleep_graph/chart_data.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph/hit_event/hit_event.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph/paintable/paintable.dart';
 
@@ -24,7 +25,9 @@ abstract class Sentinel extends Paintable {
   get bodyPaint => _bodyPaint;
   set bodyPaint (paint) => _bodyPaint = paint;
 
-  Sentinel () : isLocked = false;
+  ChartData _chartData;
+
+  Sentinel (this._chartData) : isLocked = false;
 
   /// Paint the body of this sentinel
   // TODO pass a GridData object so Paintables know where to paint themselves?
@@ -43,11 +46,19 @@ abstract class Sentinel extends Paintable {
   }
 
   /// Returns true if [event] is within this Sentinel's hitbox.
-  /// If hit, update location to [hitOffset].
+  /// If hit, update location to [event.localPosition].
   // TODO handle case when sentinels are overlapping
   @override
   bool hitTest(GestureEvent event) {
     if (!isInteractable) {
+      return false;
+    }
+
+    // Check that [event] is within the chart area
+    if (event.localPosition != null
+        && (event.localPosition.dx < _chartData.xAxisX + SENTINEL_RADIUS
+        || event.localPosition.dy > _chartData.yAxisY)) {
+      _draggingSentinel = null; // Drop the sentinel
       return false;
     }
 
@@ -106,7 +117,7 @@ class SleepSentinel extends Sentinel {
       ..color = Colors.grey[600]
       ..style = PaintingStyle.fill;
 
-  SleepSentinel () {
+  SleepSentinel (_chartData) : super(_chartData) {
     // TODO set bodyPaint by calling super constructor
     bodyPaint = _unlockedBodyPaint;
 
@@ -156,7 +167,7 @@ class WakeSentinel extends Sentinel {
       ..style = PaintingStyle.fill
       ..strokeWidth = 2.5;
 
-  WakeSentinel () {
+  WakeSentinel (_chartData) : super(_chartData) {
     // TODO set bodyPaint by calling super constructor
     super.bodyPaint = _unlockedBodyPaint;
 
