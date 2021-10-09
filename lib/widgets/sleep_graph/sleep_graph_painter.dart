@@ -44,6 +44,7 @@ class SleepGraphPainter {
     _paintBackground(canvas, size);
     _paintBorder(canvas, size);
     _paintGrid(canvas, size);
+    _paintRemLevel(canvas, size);
 
     for (Paintable paintable in _paintables) {
       paintable.paint(canvas, Size(size.width, _chartData.yAxisY));
@@ -92,6 +93,46 @@ class SleepGraphPainter {
     _paintText(canvas, size, '10:00pm', Offset(75, _chartData.yAxisY));
     _paintText(canvas, size, '11:30pm', Offset(150, _chartData.yAxisY));
     _paintText(canvas, size, '1:00am', Offset(215, _chartData.yAxisY));
+  }
+
+  void _paintRemLevel(canvas, size) {
+    Paint remLevelPaint = Paint()
+      ..color = Colors.white
+      ..strokeWidth = 4.0
+      ..style = PaintingStyle.stroke;
+    Path remLevelPath = Path();
+
+    // double xStart = 100.0;
+    // double yStart = 125.0;
+    // double xInterval = 50.0;
+    // double yInterval = 100.0;
+    // remLevelPath.moveTo(xStart, yStart);
+    // remLevelPath.quadraticBezierTo(
+    //   xStart + 1 * xInterval, yStart + 0 * yInterval,
+    //   xStart + 1 * xInterval, yStart + 1 * yInterval);
+    // remLevelPath.quadraticBezierTo(
+    //   xStart + 1 * xInterval, yStart + 2 * yInterval,
+    //   xStart + 2 * xInterval, yStart + 2 * yInterval);
+    // remLevelPath.quadraticBezierTo(
+    //   xStart + 3 * xInterval, yStart + 2 * yInterval,
+    //   xStart + 3 * xInterval, yStart + 1 * yInterval);
+    // remLevelPath.quadraticBezierTo(
+    //   xStart + 3 * xInterval, yStart + 0 * yInterval,
+    //   xStart + 4 * xInterval, yStart + 0 * yInterval);
+
+    double xStart = 100.0;
+    double yStart = 125.0;
+    double sleepCycleWidth = 60.0;
+    double sleepCycleHeight = 150.0; // 200
+    // remLevelPath = getSleepCyclePath(xStart, yStart, sleepCycleWidth, sleepCycleHeight);
+    // remLevelPath.addPath(getSleepCyclePath(xStart + sleepCycleWidth * 2, yStart, sleepCycleWidth, sleepCycleHeight), Offset(0, 0));
+
+    remLevelPath = _chartData.getSleepCyclePath();
+    remLevelPath.addPath(_chartData.getSleepCyclePath(), Offset(sleepCycleWidth * 2, 0));
+    // remLevelPath.addPath
+    // remLevelPath.trans
+
+    canvas.drawPath(remLevelPath, remLevelPaint);
   }
 
   void _paintText(Canvas canvas, Size size, String text, Offset offset) {
