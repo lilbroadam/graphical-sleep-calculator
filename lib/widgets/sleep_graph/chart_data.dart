@@ -38,7 +38,7 @@ class ChartData {
     yAxisXMax = gridMaxX;
   }
 
-  Path getSleepCyclePath() {
+  Path getSleepCyclePath([Path prefixPath]) {
     double xStart = 100.0;
     double yStart = 125.0;
     double sleepCycleWidth = 120.0;
@@ -83,7 +83,15 @@ class ChartData {
       0.0             , 0.0               , 1.0     , 0.0,
       0.0             , 0.0               , 0.0     , 1.0,
     ]);
-    return remLevelPath.transform(scaleMatrix).shift(Offset(xStart, yStart));
+    // return remLevelPath.transform(scaleMatrix).shift(Offset(xStart, yStart));
+
+    if (prefixPath != null) {
+      // prefixPath.addPath(path, Offset.zero);
+      prefixPath.extendWithPath(remLevelPath, Offset(0, 0));
+      return prefixPath;
+    } else {
+      return remLevelPath.transform(scaleMatrix).shift(Offset(xStart, yStart));
+    }
 
     // hard coded
     // remLevelPath.cubicTo(

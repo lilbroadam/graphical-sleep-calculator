@@ -122,17 +122,21 @@ class SleepGraphPainter {
 
     double xStart = 100.0;
     double yStart = 125.0;
-    double sleepCycleWidth = 60.0;
+    double sleepCycleWidth = 120.0;
     double sleepCycleHeight = 150.0; // 200
     // remLevelPath = getSleepCyclePath(xStart, yStart, sleepCycleWidth, sleepCycleHeight);
     // remLevelPath.addPath(getSleepCyclePath(xStart + sleepCycleWidth * 2, yStart, sleepCycleWidth, sleepCycleHeight), Offset(0, 0));
 
-    remLevelPath = _chartData.getSleepCyclePath();
-    remLevelPath.addPath(_chartData.getSleepCyclePath(), Offset(sleepCycleWidth * 2, 0));
-    // remLevelPath.addPath
-    // remLevelPath.trans
+    Path path = new Path();
+    for (int i = 0; i < 3; i++) {
+      path.addPath(_chartData.getSleepCyclePath(), Offset(i * sleepCycleWidth, 0));
+    }
 
-    canvas.drawPath(remLevelPath, remLevelPaint);
+    // remLevelPath = _chartData.getSleepCyclePath();
+    // // remLevelPath.addPath(_chartData.getSleepCyclePath(), Offset(sleepCycleWidth * 2, 0));
+    // remLevelPath = _chartData.getSleepCyclePath(remLevelPath);
+
+    canvas.drawPath(path, remLevelPaint);
   }
 
   void _paintText(Canvas canvas, Size size, String text, Offset offset) {
