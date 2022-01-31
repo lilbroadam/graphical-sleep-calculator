@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
@@ -6,6 +7,7 @@ import 'package:graphsleepcalc/widgets/sleep_graph/sleep_graph_painter.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph2/sleep_graph_painter2.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph/hit_event/hit_event.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph2/graph_context.dart';
+import 'package:intl/intl.dart';
 
 class SleepGraph2 extends StatelessWidget {
   
@@ -16,7 +18,7 @@ class SleepGraph2 extends StatelessWidget {
     SleepGraphLeaf sleepGraphLeaf = SleepGraphLeaf();
     GraphContext graphContext = sleepGraphLeaf.graphContext;
     Widget remLabels = RemLabels(graphContext);
-    Widget timeLabels = TimeLabels();
+    Widget timeLabels = TimeLabels(graphContext);
 
     return Container(
       child: Row(
@@ -174,13 +176,14 @@ class RemLabelsPainter extends CustomPainter {
         text: text,
         style: textStyle,
       ),
-      textDirection: TextDirection.rtl,
+      textDirection: ui.TextDirection.rtl,
     );
 
     textPainter.layout();
     Offset adjustedOffset = Offset(
       size.width - textPainter.width - textMargin,
-      offset.dy - textPainter.height / 2);
+      offset.dy - textPainter.height / 2
+    );
 
     textPainter.paint(canvas, adjustedOffset);
   }
@@ -190,8 +193,75 @@ class RemLabelsPainter extends CustomPainter {
 }
 
 class TimeLabels extends StatelessWidget {
+  GraphContext _graphContext;
+
+  TimeLabels(this._graphContext);
+
   @override
   Widget build(BuildContext context) {
-    return Container(color: Colors.pink);
+    return CustomPaint(
+      child: Container(),
+      painter: TimeLabelsPainter(_graphContext),
+    );
   }
+}
+
+class TimeLabelsPainter extends CustomPainter {
+  GraphContext _graphContext;
+
+  TimeLabelsPainter(this._graphContext);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // final Paint p = Paint()
+    //     ..color = Colors.amber[200]
+    //     ..style = PaintingStyle.stroke
+    //     ..strokeWidth = 2.5;
+    // canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), p);
+
+    final double y = 0;
+    final double minX = _graphContext.sleepCycleMinX;
+    final double maxX = _graphContext.sleepCycleMaxX;
+    final double cycleWidth = _graphContext.sleepCycleWidth;
+    final int halfCycleMinutes = _graphContext.sleepCycleMinutes ~/ 2;
+    final double halfCycleWidth = cycleWidth / 2;
+    final double numHalfCycles = ((maxX - minX) / cycleWidth) * 2;
+    for (int i = 0; i < numHalfCycles; i++) {
+      DateTime now = 
+          DateTime.now().add(Duration(minutes: i * halfCycleMinutes));
+      String time = DateFormat('h:mma').format(now); // ex: 12:37PM
+      time = time.toLowerCase().substring(0, time.length - 1); // ex: 12:37p
+
+      double x = minX + i * halfCycleWidth;
+
+      _paintTimeStamp(canvas, size, time, Offset(x, y));
+    }
+  }
+
+  void _paintTimeStamp(Canvas canvas, Size size, String text, Offset offset) {
+    final double textMargin = 5.0;
+    final TextStyle  textStyle = TextStyle(
+      color: Colors.white, // TODO get from theme
+      fontSize: 13.0, // TODO make font size scale
+    );
+
+    TextPainter textPainter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: textStyle,
+      ),
+      textDirection: ui.TextDirection.ltr,
+    );
+
+    textPainter.layout();
+    Offset adjustedOffset = Offset(
+      offset.dx - textPainter.width / 2,
+      offset.dy + textMargin,
+    );
+
+    textPainter.paint(canvas, adjustedOffset);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter old) => false; // TODO not sure what to do here
 }

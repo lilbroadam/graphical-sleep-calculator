@@ -10,11 +10,12 @@ class GraphContext {
   Size size;
 
   double sleepCycleMinX = 25.0;
-  // double sleepCycleMaxX = __;
+  double sleepCycleMaxX;
   double sleepCycleMinY = 125.0;
   double sleepCycleMaxY = 275.0;
   double sleepCycleWidth = 120.0;
   double sleepCycleHeight; // 150.0 // 200
+  int sleepCycleMinutes = 90;
 
   GraphContext() {
     sleepCycleHeight = sleepCycleMaxY - sleepCycleMinY;
@@ -24,6 +25,7 @@ class GraphContext {
     this.size = size;
     maxX = size.width;
     maxY = size.height;
+    sleepCycleMaxX = size.width;
   }
 
   /// Returns a sleep cycle Path that is at least maxX wide.
