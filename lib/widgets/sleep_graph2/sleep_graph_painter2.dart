@@ -11,7 +11,7 @@ import 'package:graphsleepcalc/widgets/sleep_graph/paintable/sentinel.dart'; // 
 
 class SleepGraphPainter2 {
   ChartData _chartData; // TODO DELETE
-  GraphContext _graphContext;
+  GraphContext graphContext;
   Paint _backgroundPaint;
   Paint _sleepCyclePaint;
   SleepSentinel2 _sleepSentinel;
@@ -19,7 +19,7 @@ class SleepGraphPainter2 {
   List<Paintable2> _paintables = [];
 
   SleepGraphPainter2() {
-    _graphContext = GraphContext();
+    graphContext = GraphContext();
     _chartData = ChartData(borderWidth: 0.0, timeLabelMargin: 0.0, sleepLabelMargin: 0.0);
 
     _backgroundPaint = Paint()
@@ -30,15 +30,15 @@ class SleepGraphPainter2 {
       ..strokeWidth = 4.0
       ..style = PaintingStyle.stroke;
     
-    _sleepSentinel = SleepSentinel2(_graphContext);
-    _wakeSentinel = WakeSentinel2(_graphContext);
+    _sleepSentinel = SleepSentinel2(graphContext);
+    _wakeSentinel = WakeSentinel2(graphContext);
     _paintables.add(_sleepSentinel);
     _paintables.add(_wakeSentinel);
   }
 
   void paint(Canvas canvas, Size size) {
     _chartData.resize(size); // TODO DELETE
-    _graphContext.resize(size);
+    graphContext.resize(size);
 
     _paintBackground(canvas, size);
     _paintSleepCycle(canvas, size);
@@ -53,7 +53,7 @@ class SleepGraphPainter2 {
   }
 
   void _paintSleepCycle(Canvas canvas, Size size) {
-    canvas.drawPath(_graphContext.getFullSleepCyclePath(), _sleepCyclePaint);
+    canvas.drawPath(graphContext.getFullSleepCyclePath(), _sleepCyclePaint);
   }
 
   void _paintPaintables(Canvas canvas, Size size) {
