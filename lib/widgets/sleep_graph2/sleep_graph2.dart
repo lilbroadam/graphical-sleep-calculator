@@ -221,7 +221,7 @@ class TimeLabelsPainter extends CustomPainter {
 
     final double y = 0;
     final double minX = _graphContext.sleepCycleMinX;
-    final double maxX = _graphContext.sleepCycleMaxX;
+    final double maxX = size.width;
     final double cycleWidth = _graphContext.sleepCycleWidth;
     final int halfCycleMinutes = _graphContext.sleepCycleMinutes ~/ 2;
     final double halfCycleWidth = cycleWidth / 2;
