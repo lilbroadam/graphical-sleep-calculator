@@ -36,7 +36,6 @@ class SleepGraph2 extends StatelessWidget {
             flex: FLEX_FACTOR,
             child: Column(
               children: [
-                // Expanded(flex: FLEX_FACTOR, child: c),
                 Expanded(flex: FLEX_FACTOR, child: sleepGraphLeaf),
                 Expanded(flex: 1, child: timeLabels),
               ],
@@ -49,7 +48,7 @@ class SleepGraph2 extends StatelessWidget {
 }
 
 class SleepGraphLeaf extends LeafRenderObjectWidget {
-  RenderSleepGraph renderSleepGraph = RenderSleepGraph();
+  final RenderSleepGraph renderSleepGraph = RenderSleepGraph();
 
   get graphContext => renderSleepGraph.graphContext;
 

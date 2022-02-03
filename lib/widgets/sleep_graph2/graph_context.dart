@@ -31,7 +31,6 @@ class GraphContext {
   /// Returns a sleep cycle Path that is at least maxX wide.
   Path getFullSleepCyclePath() {
     Path sleepCyclePath = Path();
-
     for (int i = 0; i < (maxX - minX) / sleepCycleWidth; i++) {
       Path p = getScaledSleepCyclePath();
       Offset o = Offset(sleepCycleMinX + i * sleepCycleWidth, sleepCycleMinY);
