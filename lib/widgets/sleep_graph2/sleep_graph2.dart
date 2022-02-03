@@ -1,12 +1,12 @@
-import 'dart:ui' as ui;
+import 'dart:async';
+import 'dart:ui' as ui; // Resolves naming conflicts with intl
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:graphsleepcalc/widgets/sleep_graph/sleep_graph_painter.dart';
-import 'package:graphsleepcalc/widgets/sleep_graph2/sleep_graph_painter2.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph/hit_event/hit_event.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph2/graph_context.dart';
+import 'package:graphsleepcalc/widgets/sleep_graph2/sleep_graph_painter2.dart';
 import 'package:intl/intl.dart';
 
 class SleepGraph2 extends StatelessWidget {
@@ -146,12 +146,6 @@ class RemLabelsPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // final Paint p = Paint()
-    //     ..color = Colors.amber[200]
-    //     ..style = PaintingStyle.stroke
-    //     ..strokeWidth = 2.5;
-    // canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), p);
-    
     final double centerX = size.width / 2;
     final double minY = _graphContext.sleepCycleMinY;
     final double maxY = _graphContext.sleepCycleMaxY;
@@ -193,15 +187,26 @@ class RemLabelsPainter extends CustomPainter {
 }
 
 class TimeLabels extends StatelessWidget {
-  GraphContext _graphContext;
+  final GraphContext _graphContext;
+  final ValueNotifier _dateTimeNotifier;
 
-  TimeLabels(this._graphContext);
+  TimeLabels(this._graphContext)
+      : _dateTimeNotifier = ValueNotifier(DateTime.now()) {
+    // Check every second to see if the minute has changed. If it has, repaint
+    // so that the time labels match the current time.
+    Timer.periodic(Duration(seconds: 1), (timer) {
+      DateTime now = DateTime.now();
+      if (now.minute != _dateTimeNotifier.value.minute) {
+        _dateTimeNotifier.value = now;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
       child: Container(),
-      painter: TimeLabelsPainter(_graphContext),
+      painter: TimeLabelsPainter(_graphContext, _dateTimeNotifier),
     );
   }
 }
@@ -209,33 +214,29 @@ class TimeLabels extends StatelessWidget {
 class TimeLabelsPainter extends CustomPainter {
   GraphContext _graphContext;
 
-  TimeLabelsPainter(this._graphContext);
+  TimeLabelsPainter(this._graphContext, repaint) : super(repaint: repaint);
 
   @override
   void paint(Canvas canvas, Size size) {
-    // final Paint p = Paint()
-    //     ..color = Colors.amber[200]
-    //     ..style = PaintingStyle.stroke
-    //     ..strokeWidth = 2.5;
-    // canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), p);
-
     final double y = 0;
     final double minX = _graphContext.sleepCycleMinX;
-    final double maxX = size.width;
+    final double maxX = size.width; // TODO consider properties in graph context
     final double cycleWidth = _graphContext.sleepCycleWidth;
     final int halfCycleMinutes = _graphContext.sleepCycleMinutes ~/ 2;
     final double halfCycleWidth = cycleWidth / 2;
     final double numHalfCycles = ((maxX - minX) / cycleWidth) * 2;
     for (int i = 0; i < numHalfCycles; i++) {
-      DateTime now = 
+      DateTime time = 
           DateTime.now().add(Duration(minutes: i * halfCycleMinutes));
-      String time = DateFormat('h:mma').format(now); // ex: 12:37PM
-      time = time.toLowerCase().substring(0, time.length - 1); // ex: 12:37p
-
       double x = minX + i * halfCycleWidth;
 
-      _paintTimeStamp(canvas, size, time, Offset(x, y));
+      _paintTimeStamp(canvas, size, _formatTimeString(time), Offset(x, y));
     }
+  }
+
+  String _formatTimeString(DateTime time) {
+    String timeString = DateFormat('h:mma').format(time);
+    return timeString.toLowerCase().substring(0, timeString.length - 1);
   }
 
   void _paintTimeStamp(Canvas canvas, Size size, String text, Offset offset) {
@@ -263,5 +264,5 @@ class TimeLabelsPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(CustomPainter old) => false; // TODO not sure what to do here
+  bool shouldRepaint(CustomPainter old) => false;
 }
