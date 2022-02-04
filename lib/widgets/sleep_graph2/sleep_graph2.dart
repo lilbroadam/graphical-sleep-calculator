@@ -102,6 +102,7 @@ class RenderSleepGraph extends RenderBox {
     final canvas = context.canvas;
     canvas.save();
     canvas.translate(offset.dx, offset.dy);
+    graphContext.resize(size);
     graphContext.applyViewPane(canvas, size);
     _painter.paint(canvas, size);
     canvas.restore();
@@ -133,10 +134,19 @@ class RenderSleepGraph extends RenderBox {
   }
 }
 
-class RemLabels extends StatelessWidget {
+class RemLabels extends StatefulWidget {
   final GraphContext _graphContext;
 
   RemLabels(this._graphContext);
+
+  @override
+  _RemLabelsState createState() => _RemLabelsState(_graphContext);
+}
+
+class _RemLabelsState extends State<RemLabels> {
+  final GraphContext _graphContext;
+
+  _RemLabelsState(this._graphContext);
 
   @override
   Widget build(BuildContext context) {
@@ -148,7 +158,7 @@ class RemLabels extends StatelessWidget {
 }
 
 class RemLabelsPainter extends CustomPainter {
-  GraphContext _graphContext;
+  final GraphContext _graphContext;
 
   RemLabelsPainter(this._graphContext);
 
@@ -194,11 +204,20 @@ class RemLabelsPainter extends CustomPainter {
   bool shouldRepaint(CustomPainter old) => false; // TODO not sure what to do here
 }
 
-class TimeLabels extends StatelessWidget {
+class TimeLabels extends StatefulWidget {
+  final GraphContext _graphContext;
+
+  TimeLabels(this._graphContext);
+
+  @override
+  _TimeLabelsState createState() => _TimeLabelsState(_graphContext);
+}
+
+class _TimeLabelsState extends State<TimeLabels> {
   final GraphContext _graphContext;
   final ValueNotifier _dateTimeNotifier;
 
-  TimeLabels(this._graphContext)
+  _TimeLabelsState(this._graphContext) 
       : _dateTimeNotifier = ValueNotifier(DateTime.now()) {
     // Check every second to see if the minute has changed. If it has, repaint
     // so that the time labels match the current time.
@@ -230,7 +249,7 @@ class TimeLabelsPainter extends CustomPainter {
 
     final double y = 0;
     final double minX = _graphContext.sleepCycleMinX;
-    final double maxX = size.width; // TODO consider properties in graph context
+    final double maxX = _graphContext.size.width;
     final double cycleWidth = _graphContext.sleepCycleWidth;
     final int halfCycleMinutes = _graphContext.sleepCycleMinutes ~/ 2;
     final double halfCycleWidth = cycleWidth / 2;

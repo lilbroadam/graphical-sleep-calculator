@@ -35,6 +35,7 @@ class SleepGraphPainter2 {
   }
 
   void _paintSleepCycle(Canvas canvas, Size size) {
+    // TODO lazily extend path as user scrolls to the right
     canvas.drawPath(graphContext.getFullSleepCyclePath(), _sleepCyclePaint);
   }
 

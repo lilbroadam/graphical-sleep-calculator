@@ -1,14 +1,22 @@
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 class GraphContext {
-  double minX = 0;
-  double maxX;
-  double minY = 0;
-  double maxY;
+  // [size] represents the size of the graph, not the size of the widget.
+  // [size.width] represents the furthest x coordinate that the user has 
+  // horizontally scrolled to and increases whenever the user scrolls further
+  // right than they have previously.
+  Size size = Size(0, 0);
 
-  Size size;
-  Offset viewPane; // Coordinate of the view pane
+  // The current view pane the user is viewing (i.e. a subset of [size]).
+  // [viewPane.dx] represents the left side of the view pane.
+  Offset viewPane = Offset(0, 0); // Coordinate of the view pane
+
+  get minX => 0.0;
+  get maxX => size.width;
+  get minY => 0.0;
+  get maxY => size.height;
 
   double sleepCycleMinX = 25.0;
   double sleepCycleMaxX;
@@ -23,24 +31,19 @@ class GraphContext {
 
   GraphContext() {
     sleepCycleHeight = sleepCycleMaxY - sleepCycleMinY;
-    viewPane = Offset(0, 0);
   }
 
   void resize(Size size) {
-    this.size = size;
-    maxX = size.width;
-    maxY = size.height;
-    sleepCycleMaxX = size.width;
+    double width = max(this.size.width, viewPane.dx + size.width);
+    this.size = Size(width, size.height);
+
+    sleepCycleMaxX = size.width; // TODO is this necessary?
   }
 
   // Shift [canvas] to show what is in the current viewPane and clip it to 
   // prevent it from painting over other widgets.
-  void applyViewPane(Canvas canvas, Size size) {
-    if (viewPane != null) {
-      this.viewPane = viewPane;
-    }
-
-    canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
+  void applyViewPane(Canvas canvas, Size widgetSize) {
+    canvas.clipRect(Rect.fromLTWH(0, 0, widgetSize.width, widgetSize.height));
     canvas.translate(-1 * this.viewPane.dx, 0);
   }
 
