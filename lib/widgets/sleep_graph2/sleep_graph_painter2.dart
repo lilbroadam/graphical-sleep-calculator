@@ -6,29 +6,27 @@ import 'package:graphsleepcalc/widgets/sleep_graph2/paintable2/paintable2.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph2/paintable2/sentinel2.dart';
 
 class SleepGraphPainter2 {
-  GraphContext graphContext;
+  GraphContext _graphContext;
   Paint _sleepCyclePaint;
   SleepSentinel2 _sleepSentinel;
   WakeSentinel2 _wakeSentinel;
   List<Paintable2> _paintables = [];
 
-  SleepGraphPainter2() {
-    graphContext = GraphContext();
-
+  SleepGraphPainter2(this._graphContext) {
     _sleepCyclePaint = Paint()
       ..color = Colors.white
       ..strokeWidth = 4.0
       ..style = PaintingStyle.stroke;
     
-    _sleepSentinel = SleepSentinel2(graphContext);
-    _wakeSentinel = WakeSentinel2(graphContext);
+    _sleepSentinel = SleepSentinel2(_graphContext);
+    _wakeSentinel = WakeSentinel2(_graphContext);
 
     _paintables.add(_sleepSentinel);
     _paintables.add(_wakeSentinel);
   }
 
   void paint(Canvas canvas, Size size) {
-    graphContext.resize(size);
+    _graphContext.resize(size);
 
     _paintSleepCycle(canvas, size);
     _paintPaintables(canvas, size);
@@ -36,7 +34,7 @@ class SleepGraphPainter2 {
 
   void _paintSleepCycle(Canvas canvas, Size size) {
     // TODO lazily extend path as user scrolls to the right
-    canvas.drawPath(graphContext.getFullSleepCyclePath(), _sleepCyclePaint);
+    canvas.drawPath(_graphContext.getFullSleepCyclePath(), _sleepCyclePaint);
   }
 
   void _paintPaintables(Canvas canvas, Size size) {

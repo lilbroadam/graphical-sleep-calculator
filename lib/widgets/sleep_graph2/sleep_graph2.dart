@@ -11,15 +11,17 @@ import 'package:graphsleepcalc/widgets/sleep_graph2/sleep_graph_painter2.dart';
 import 'package:intl/intl.dart';
 
 class SleepGraph2 extends StatelessWidget {
-  
+  final GraphContext _graphContext;
+
+  SleepGraph2() : _graphContext = GraphContext();
+
   @override
   Widget build(BuildContext context) {
     const FLEX_FACTOR = 3;
 
-    SleepGraphLeaf sleepGraphLeaf = SleepGraphLeaf();
-    GraphContext graphContext = sleepGraphLeaf.graphContext;
-    Widget remLabels = RemLabels(graphContext);
-    Widget timeLabels = TimeLabels(graphContext);
+    SleepGraphLeaf sleepGraphLeaf = SleepGraphLeaf(_graphContext);
+    Widget remLabels = RemLabels(_graphContext);
+    Widget timeLabels = TimeLabels(_graphContext);
 
     return Container(
       child: Row(
@@ -49,26 +51,24 @@ class SleepGraph2 extends StatelessWidget {
 }
 
 class SleepGraphLeaf extends LeafRenderObjectWidget {
-  final RenderSleepGraph renderSleepGraph = RenderSleepGraph();
+  final GraphContext _graphContext;
 
-  get graphContext => renderSleepGraph.graphContext;
+  SleepGraphLeaf(this._graphContext);
 
-  @override
   RenderSleepGraph createRenderObject(BuildContext context) {
-    return renderSleepGraph;
+    return RenderSleepGraph(_graphContext);
   }
 }
 
 class RenderSleepGraph extends RenderBox {
+  GraphContext _graphContext;
   SleepGraphPainter2 _painter;
   HorizontalDragGestureRecognizer _horizontalDragGesture; // TODO use 'late' keyword
   TapGestureRecognizer _tapGesture;
   Offset viewPane = Offset(0, 0); // Coordinate of the view pane
 
-  GraphContext get graphContext => _painter.graphContext;
-
-  RenderSleepGraph() {
-    _painter = new SleepGraphPainter2();
+  RenderSleepGraph(this._graphContext) {
+    _painter = new SleepGraphPainter2(_graphContext);
 
     _horizontalDragGesture = HorizontalDragGestureRecognizer();
     _horizontalDragGesture.onStart =
@@ -102,8 +102,8 @@ class RenderSleepGraph extends RenderBox {
     final canvas = context.canvas;
     canvas.save();
     canvas.translate(offset.dx, offset.dy);
-    graphContext.resize(size);
-    graphContext.applyViewPane(canvas, size);
+    _graphContext.resize(size);
+    _graphContext.applyViewPane(canvas, size);
     _painter.paint(canvas, size);
     canvas.restore();
   }
@@ -125,8 +125,8 @@ class RenderSleepGraph extends RenderBox {
     bool hit = _painter.onGestureEvent(event);
     if (event is HorizontalDragUpdateEvent && !hit) {
       // Use Math.max(0, __) to keep viewpane from going too far to the left
-      var x = max(0.0, graphContext.viewPane.dx - event.details.delta.dx);
-      graphContext.viewPane = Offset(x, 0);
+      var x = max(0.0, _graphContext.viewPane.dx - event.details.delta.dx);
+      _graphContext.viewPane = Offset(x, 0);
     }
 
     markNeedsPaint();
