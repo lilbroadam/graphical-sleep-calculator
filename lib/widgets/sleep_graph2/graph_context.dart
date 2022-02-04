@@ -8,6 +8,7 @@ class GraphContext {
   double maxY;
 
   Size size;
+  Offset viewPane;
 
   double sleepCycleMinX = 25.0;
   double sleepCycleMaxX;

@@ -44,11 +44,17 @@ class SleepGraphPainter2 {
     }
   }
 
-  void onGestureEvent(GestureEvent event) {
+  // Return true if painter detected a hit
+  bool onGestureEvent(GestureEvent event) {
+    bool hit = false;
     for (Paintable2 p in _paintables) {
       if (p.hitTest(event)) {
+        hit = true;
         p.onGestureEvent(event);
       }
     }
+
+    // TODO change return to if the event was handled by a paintable
+    return hit;
   }
 }

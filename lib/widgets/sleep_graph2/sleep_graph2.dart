@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui' as ui; // Resolves naming conflicts with intl
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
@@ -62,6 +63,7 @@ class RenderSleepGraph extends RenderBox {
   SleepGraphPainter2 _painter;
   HorizontalDragGestureRecognizer _horizontalDragGesture; // TODO use 'late' keyword
   TapGestureRecognizer _tapGesture;
+  Offset viewPane = Offset(0, 0); // Coordinate of the view pane
 
   get graphContext => _painter.graphContext;
 
@@ -97,11 +99,17 @@ class RenderSleepGraph extends RenderBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    final canvas = context.canvas;
-    canvas.save();
-    canvas.translate(offset.dx, offset.dy);
-    _painter.paint(canvas, size);
-    canvas.restore();
+    // Clip to keep this widget from painting over other widgets
+    Rect clipRect = Rect.fromLTWH(0, 0, size.width, size.height);
+    context.pushClipRect(needsCompositing, offset, clipRect, (context, offset) {
+      final canvas = context.canvas;
+      canvas.save();
+      canvas.translate(offset.dx, offset.dy);
+      canvas.translate(-1 * viewPane.dx, 0); // Show what is in view of viewpane
+      graphContext.viewPane = viewPane;
+      _painter.paint(canvas, size);
+      canvas.restore();
+    });
   }
 
   /* TOUCH */
@@ -118,7 +126,13 @@ class RenderSleepGraph extends RenderBox {
   }
 
   void _onGestureEvent(GestureEvent event) {
-    _painter.onGestureEvent(event);
+    bool hit = _painter.onGestureEvent(event);
+    if (event is HorizontalDragUpdateEvent && !hit) {
+      // Use Math.max(0, __) to keep viewpane from going too far to the left
+      var viewPaneX = max(0.0, viewPane.dx - event.details.delta.dx);
+      viewPane = Offset(viewPaneX, 0.0);
+    }
+
     markNeedsPaint();
     markNeedsSemanticsUpdate();
   }

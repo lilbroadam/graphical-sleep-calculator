@@ -64,7 +64,7 @@ abstract class Sentinel2 extends Paintable2 {
     }
 
     // TODO (x + width - offset.dx).abs()
-    var hitOffset = event.localPosition;
+    Offset hitOffset = event.localPosition + _graphContext.viewPane;
     bool hit = (offset.dx - hitOffset.dx).abs() < HIT_BOX_MARGIN
             && (offset.dy - hitOffset.dy).abs() < HIT_BOX_MARGIN;
 
@@ -81,7 +81,7 @@ abstract class Sentinel2 extends Paintable2 {
       _draggingSentinel = this;
     } else if (event is HorizontalDragUpdateEvent) {
       if (this == _draggingSentinel) {
-        offset = Offset(eventOffset.dx, offset.dy);
+        offset = Offset(eventOffset.dx + _graphContext.viewPane.dx, offset.dy);
       }
     } else if (event is HorizontalDragEndEvent ||
         event is HorizontalDragCancelEvent) {
@@ -165,7 +165,7 @@ class WakeSentinel2 extends Sentinel2 {
     // TODO set bodyPaint by calling super constructor
     super.bodyPaint = _unlockedBodyPaint;
 
-    offset = initialOffset(2.0);
+    offset = initialOffset(3.0);
   }
 
   /// Have WakeSentinel paint itself at [offset].

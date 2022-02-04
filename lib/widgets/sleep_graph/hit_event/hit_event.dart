@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 
 abstract class GestureEvent {
+  get details;
   Offset get localPosition;
 }
 
@@ -27,6 +28,7 @@ class HorizontalDragEndEvent extends HorizontalDragEvent {
 }
 
 class HorizontalDragCancelEvent extends HorizontalDragEvent {
+  get details => null;
   get localPosition => null;
   HorizontalDragCancelEvent();
 }
