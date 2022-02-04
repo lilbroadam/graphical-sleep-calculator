@@ -71,16 +71,14 @@ abstract class Sentinel2 extends Paintable2 {
     return hit;
   }
 
-  @override
-  void onGestureEvent(GestureEvent event);
-
   // TODO change to private method that children can call
+  @override
   void onHorizontalDragEvent(HorizontalDragEvent event) {
     Offset eventOffset = event.localPosition;
     if (event is HorizontalDragStartEvent) {
       _draggingSentinel = this;
     } else if (event is HorizontalDragUpdateEvent 
-        && this == _draggingSentinel) {
+        && this == _draggingSentinel && !isLocked) {
       setOffset(Offset(eventOffset.dx + _graphContext.viewPane.dx, offset.dy));
     } else if (event is HorizontalDragEndEvent ||
         event is HorizontalDragCancelEvent) {
@@ -146,11 +144,16 @@ class SleepSentinel2 extends Sentinel2 {
   @override
   void onGestureEvent(GestureEvent event) {
     if (event is TapUpEvent) {
-      isLocked = !isLocked;
-      bodyPaint = isLocked ? _lockedBodyPaint : _unlockedBodyPaint;
+      onTapEvent(event);
     } else if (event is HorizontalDragEvent) {
       onHorizontalDragEvent(event);
     }
+  }
+
+  @override
+  void onTapEvent(TapEvent event) {
+    isLocked = !isLocked;
+    bodyPaint = isLocked ? _lockedBodyPaint : _unlockedBodyPaint;
   }
 
   @override
@@ -192,11 +195,16 @@ class WakeSentinel2 extends Sentinel2 {
   @override
   void onGestureEvent(GestureEvent event) {
     if (event is TapUpEvent) {
-      isLocked = !isLocked;
-      bodyPaint = isLocked ? _lockedBodyPaint : _unlockedBodyPaint;
+      onTapEvent(event);
     } else if (event is HorizontalDragEvent) {
       onHorizontalDragEvent(event);
     }
+  }
+
+  @override
+  void onTapEvent(TapEvent event) {
+    isLocked = !isLocked;
+    bodyPaint = isLocked ? _lockedBodyPaint : _unlockedBodyPaint;
   }
 
   @override

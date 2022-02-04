@@ -16,4 +16,6 @@ abstract class Paintable2 {
   bool hitTest(GestureEvent hitOffset);
 
   void onGestureEvent(GestureEvent event);
+  void onTapEvent(TapEvent event);
+  void onHorizontalDragEvent(HorizontalDragEvent event);
 }
