@@ -79,21 +79,24 @@ abstract class Sentinel2 extends Paintable2 {
     Offset eventOffset = event.localPosition;
     if (event is HorizontalDragStartEvent) {
       _draggingSentinel = this;
-    } else if (event is HorizontalDragUpdateEvent) {
-      if (this == _draggingSentinel) {
-        offset = Offset(eventOffset.dx + _graphContext.viewPane.dx, offset.dy);
-      }
+    } else if (event is HorizontalDragUpdateEvent 
+        && this == _draggingSentinel) {
+      setOffset(Offset(eventOffset.dx + _graphContext.viewPane.dx, offset.dy));
     } else if (event is HorizontalDragEndEvent ||
         event is HorizontalDragCancelEvent) {
       _draggingSentinel = null;
     }
   }
 
+  void setOffset(Offset offset) {
+    this.offset = offset;
+  }
+
   double bodyY(GraphContext graphContext) {
     return graphContext.sleepCycleMinY - SENTINEL_BODY_LINE_MARGIN;
   }
 
-  Offset initialOffset(double numCycles) {
+  Offset _initialOffset(double numCycles) {
     Offset sleepCycleStart = _graphContext.sleepCycleToOffset(numCycles);
     return Offset(sleepCycleStart.dx, bodyY(_graphContext));
   }
@@ -120,7 +123,7 @@ class SleepSentinel2 extends Sentinel2 {
     // TODO set bodyPaint by calling super constructor
     bodyPaint = _unlockedBodyPaint;
 
-    offset = initialOffset(0.0);
+    setOffset(_initialOffset(0.0));
   }
 
   /// Have SleepSentinel paint itself at [offset]
@@ -149,6 +152,17 @@ class SleepSentinel2 extends Sentinel2 {
       onHorizontalDragEvent(event);
     }
   }
+
+  @override
+  void setOffset(Offset offset) {
+    if (_graphContext.wakeSentinelX != null 
+        && _graphContext.wakeSentinelX <= offset.dx) {
+      return;
+    }
+
+    super.setOffset(offset);
+    _graphContext.sleepSentinelX = offset.dx;
+  }
 }
 
 class WakeSentinel2 extends Sentinel2 {
@@ -165,7 +179,7 @@ class WakeSentinel2 extends Sentinel2 {
     // TODO set bodyPaint by calling super constructor
     super.bodyPaint = _unlockedBodyPaint;
 
-    offset = initialOffset(3.0);
+    setOffset(_initialOffset(3.0));
   }
 
   /// Have WakeSentinel paint itself at [offset].
@@ -183,5 +197,16 @@ class WakeSentinel2 extends Sentinel2 {
     } else if (event is HorizontalDragEvent) {
       onHorizontalDragEvent(event);
     }
+  }
+
+  @override
+  void setOffset(Offset offset) {
+    if (_graphContext.sleepSentinelX != null 
+        && _graphContext.sleepSentinelX >= offset.dx) {
+      return;
+    }
+
+    super.setOffset(offset);
+    _graphContext.wakeSentinelX = offset.dx;
   }
 }

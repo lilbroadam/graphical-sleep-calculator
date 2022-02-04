@@ -18,6 +18,9 @@ class GraphContext {
   double sleepCycleHeight; // 150.0 // 200
   int sleepCycleMinutes = 90;
 
+  double sleepSentinelX;
+  double wakeSentinelX;
+
   GraphContext() {
     sleepCycleHeight = sleepCycleMaxY - sleepCycleMinY;
     viewPane = Offset(0, 0);
