@@ -8,7 +8,7 @@ class GraphContext {
   double maxY;
 
   Size size;
-  Offset viewPane;
+  Offset viewPane; // Coordinate of the view pane
 
   double sleepCycleMinX = 25.0;
   double sleepCycleMaxX;
@@ -28,6 +28,17 @@ class GraphContext {
     maxX = size.width;
     maxY = size.height;
     sleepCycleMaxX = size.width;
+  }
+
+  // Shift [canvas] to show what is in the current viewPane and clip it to 
+  // prevent it from painting over other widgets.
+  void applyViewPane(Canvas canvas, Size size) {
+    if (viewPane != null) {
+      this.viewPane = viewPane;
+    }
+
+    canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
+    canvas.translate(-1 * this.viewPane.dx, 0);
   }
 
   /// Returns a sleep cycle Path that is at least maxX wide.

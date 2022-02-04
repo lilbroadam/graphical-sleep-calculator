@@ -65,7 +65,7 @@ class RenderSleepGraph extends RenderBox {
   TapGestureRecognizer _tapGesture;
   Offset viewPane = Offset(0, 0); // Coordinate of the view pane
 
-  get graphContext => _painter.graphContext;
+  GraphContext get graphContext => _painter.graphContext;
 
   RenderSleepGraph() {
     _painter = new SleepGraphPainter2();
@@ -99,13 +99,10 @@ class RenderSleepGraph extends RenderBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    final Rect clipRect = Rect.fromLTWH(0, 0, size.width, size.height);
     final canvas = context.canvas;
     canvas.save();
     canvas.translate(offset.dx, offset.dy);
-    canvas.clipRect(clipRect); // Keep from painting over other widgets
-    canvas.translate(-1 * viewPane.dx, 0); // Show what is in view of viewpane
-    graphContext.viewPane = viewPane;
+    graphContext.applyViewPane(canvas, size);
     _painter.paint(canvas, size);
     canvas.restore();
   }
@@ -127,8 +124,8 @@ class RenderSleepGraph extends RenderBox {
     bool hit = _painter.onGestureEvent(event);
     if (event is HorizontalDragUpdateEvent && !hit) {
       // Use Math.max(0, __) to keep viewpane from going too far to the left
-      var viewPaneX = max(0.0, viewPane.dx - event.details.delta.dx);
-      viewPane = Offset(viewPaneX, 0.0);
+      var x = max(0.0, graphContext.viewPane.dx - event.details.delta.dx);
+      graphContext.viewPane = Offset(x, 0);
     }
 
     markNeedsPaint();
@@ -229,8 +226,7 @@ class TimeLabelsPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
-    canvas.translate(-1 * _graphContext.viewPane.dx, 0);
+    _graphContext.applyViewPane(canvas, size);
 
     final double y = 0;
     final double minX = _graphContext.sleepCycleMinX;
