@@ -20,6 +20,7 @@ class GraphContext {
 
   GraphContext() {
     sleepCycleHeight = sleepCycleMaxY - sleepCycleMinY;
+    viewPane = Offset(0, 0);
   }
 
   void resize(Size size) {

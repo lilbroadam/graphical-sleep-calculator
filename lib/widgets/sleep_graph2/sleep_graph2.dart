@@ -99,17 +99,15 @@ class RenderSleepGraph extends RenderBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    // Clip to keep this widget from painting over other widgets
-    Rect clipRect = Rect.fromLTWH(0, 0, size.width, size.height);
-    context.pushClipRect(needsCompositing, offset, clipRect, (context, offset) {
-      final canvas = context.canvas;
-      canvas.save();
-      canvas.translate(offset.dx, offset.dy);
-      canvas.translate(-1 * viewPane.dx, 0); // Show what is in view of viewpane
-      graphContext.viewPane = viewPane;
-      _painter.paint(canvas, size);
-      canvas.restore();
-    });
+    final Rect clipRect = Rect.fromLTWH(0, 0, size.width, size.height);
+    final canvas = context.canvas;
+    canvas.save();
+    canvas.translate(offset.dx, offset.dy);
+    canvas.clipRect(clipRect); // Keep from painting over other widgets
+    canvas.translate(-1 * viewPane.dx, 0); // Show what is in view of viewpane
+    graphContext.viewPane = viewPane;
+    _painter.paint(canvas, size);
+    canvas.restore();
   }
 
   /* TOUCH */
@@ -231,6 +229,9 @@ class TimeLabelsPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
+    canvas.translate(-1 * _graphContext.viewPane.dx, 0);
+
     final double y = 0;
     final double minX = _graphContext.sleepCycleMinX;
     final double maxX = size.width; // TODO consider properties in graph context
