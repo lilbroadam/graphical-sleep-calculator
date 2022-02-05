@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph/hit_event/hit_event.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph2/graph_context.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph2/paintable2/paintable2.dart';
+import 'package:intl/intl.dart';
 
 abstract class Sentinel2 extends Paintable2 {
   static const double SENTINEL_DIAMETER = 35.0;
@@ -25,9 +26,16 @@ abstract class Sentinel2 extends Paintable2 {
   get bodyPaint => _bodyPaint;
   set bodyPaint (paint) => _bodyPaint = paint;
 
+  ValueNotifier<DateTime> notifier = ValueNotifier(null);
+
   GraphContext _graphContext;
 
   Sentinel2(this._graphContext) : isLocked = false;
+
+  static String formatTimeString(DateTime time) {
+    String timeString = DateFormat('h:mma').format(time);
+    return timeString.toLowerCase().substring(0, timeString.length - 1);
+  }
 
   /// Paint the body of this sentinel
   @override
@@ -88,6 +96,12 @@ abstract class Sentinel2 extends Paintable2 {
 
   void setOffset(Offset offset) {
     this.offset = offset;
+    var minutesPerX 
+        = _graphContext.sleepCycleMinutes / _graphContext.sleepCycleWidth;
+    var xDiff = this.offset.dx - _graphContext.sleepCycleMinX;
+    var minutesOffset = Duration(minutes: (minutesPerX * xDiff).toInt());
+    var time = DateTime.now().add(minutesOffset);
+    notifier.value = time;
   }
 
   double bodyY(GraphContext graphContext) {
@@ -120,6 +134,8 @@ class SleepSentinel2 extends Sentinel2 {
   SleepSentinel2(_graphContext) : super(_graphContext) {
     // TODO set bodyPaint by calling super constructor
     bodyPaint = _unlockedBodyPaint;
+
+    _graphContext.sleepTimeNotifier = notifier;
 
     setOffset(_initialOffset(0.0));
   }
@@ -181,6 +197,8 @@ class WakeSentinel2 extends Sentinel2 {
   WakeSentinel2(_graphContext) : super(_graphContext) {
     // TODO set bodyPaint by calling super constructor
     super.bodyPaint = _unlockedBodyPaint;
+
+    _graphContext.wakeTimeNotifier = notifier;
 
     setOffset(_initialOffset(3.0));
   }

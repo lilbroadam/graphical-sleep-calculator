@@ -29,6 +29,9 @@ class GraphContext {
   double sleepSentinelX;
   double wakeSentinelX;
 
+  ValueNotifier<DateTime> sleepTimeNotifier;
+  ValueNotifier<DateTime> wakeTimeNotifier;
+
   GraphContext() {
     sleepCycleHeight = sleepCycleMaxY - sleepCycleMinY;
   }

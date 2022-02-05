@@ -7,19 +7,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph/hit_event/hit_event.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph2/graph_context.dart';
+import 'package:graphsleepcalc/widgets/sleep_graph2/paintable2/sentinel2.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph2/sleep_graph_painter2.dart';
-import 'package:intl/intl.dart';
 
 class SleepGraph2 extends StatelessWidget {
   final GraphContext _graphContext;
+  SleepGraphLeaf sleepGraphLeaf;
 
-  SleepGraph2() : _graphContext = GraphContext();
+  get sleepTimeNotifier => _graphContext.sleepTimeNotifier;
+  get wakeTimeNotifier => _graphContext.wakeTimeNotifier;
+
+  SleepGraph2() : _graphContext = GraphContext() {
+    // SleepGraphLeaf must be allocated in the constructor instead of the build
+    // method so [_graphContext] can be populated before SleepGraph is built.
+    sleepGraphLeaf = SleepGraphLeaf(_graphContext);
+  }
 
   @override
   Widget build(BuildContext context) {
     const FLEX_FACTOR = 3;
 
-    SleepGraphLeaf sleepGraphLeaf = SleepGraphLeaf(_graphContext);
     Widget remLabels = RemLabels(_graphContext);
     Widget timeLabels = TimeLabels(_graphContext);
 
@@ -51,12 +58,13 @@ class SleepGraph2 extends StatelessWidget {
 }
 
 class SleepGraphLeaf extends LeafRenderObjectWidget {
-  final GraphContext _graphContext;
+  final RenderSleepGraph renderSleepGraph;
 
-  SleepGraphLeaf(this._graphContext);
+  SleepGraphLeaf(graphContext) 
+      : renderSleepGraph = RenderSleepGraph(graphContext);
 
   RenderSleepGraph createRenderObject(BuildContext context) {
-    return RenderSleepGraph(_graphContext);
+    return renderSleepGraph;
   }
 }
 
@@ -255,17 +263,12 @@ class TimeLabelsPainter extends CustomPainter {
     final double halfCycleWidth = cycleWidth / 2;
     final double numHalfCycles = ((maxX - minX) / cycleWidth) * 2;
     for (int i = 0; i < numHalfCycles; i++) {
-      DateTime time = 
-          DateTime.now().add(Duration(minutes: i * halfCycleMinutes));
+      String time = Sentinel2.formatTimeString(
+          DateTime.now().add(Duration(minutes: i * halfCycleMinutes)));
       double x = minX + i * halfCycleWidth;
 
-      _paintTimeStamp(canvas, size, _formatTimeString(time), Offset(x, y));
+      _paintTimeStamp(canvas, size, time, Offset(x, y));
     }
-  }
-
-  String _formatTimeString(DateTime time) {
-    String timeString = DateFormat('h:mma').format(time);
-    return timeString.toLowerCase().substring(0, timeString.length - 1);
   }
 
   void _paintTimeStamp(Canvas canvas, Size size, String text, Offset offset) {
