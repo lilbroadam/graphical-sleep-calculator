@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:graphsleepcalc/widgets/sleep_cycle_graph.dart';
-import 'package:graphsleepcalc/widgets/sleep_graph/sleep_graph.dart';
-import 'package:graphsleepcalc/widgets/sleep_graph2/sleep_graph2.dart';
+import 'package:graphsleepcalc/widgets/sleep_graph.dart';
 import 'package:graphsleepcalc/widgets/time_dashboard.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -12,9 +10,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  SleepGraph2 sleepGraph;
+  SleepGraph sleepGraph;
 
-  _HomeScreenState() : sleepGraph = SleepGraph2();
+  _HomeScreenState() : sleepGraph = SleepGraph();
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +28,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             Expanded(
               flex: 3,
-              // child: SleepCycleGraph(pxWidth: 800, pxHeight: 400),
-              // child: SleepGraph(),
               child: sleepGraph,
             ),
             Spacer(),

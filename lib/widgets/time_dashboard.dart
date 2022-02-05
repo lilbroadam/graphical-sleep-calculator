@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:graphsleepcalc/widgets/sleep_graph2/paintable2/sentinel2.dart';
+import 'package:graphsleepcalc/widgets/sleep_graph/paintable/sentinel.dart';
 
 class TimeDashboard extends StatefulWidget {
   final ValueNotifier _sleepTimeNotifier;
@@ -72,7 +72,7 @@ class _TimeDashboardState extends State<TimeDashboard> {
       valueListenable: notifier,
       builder: (context, value, child) {
         return Text(
-          Sentinel2.formatTimeString(value),
+          Sentinel.formatTimeString(value),
           style: _dashboardTextStyle
         );
       }
