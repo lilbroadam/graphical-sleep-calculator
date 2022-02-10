@@ -1,5 +1,7 @@
+import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:graphsleepcalc/config/themes/theme_manager.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph/graph_context.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph/hit_event/hit_event.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph/paintable/paintable.dart';
@@ -33,6 +35,17 @@ class SleepGraphPainter {
   }
 
   void _paintSleepCycle(Canvas canvas, Size size) {
+    Color awakeColor = ThemeManager.theme.awakeColor;
+    Color deepSleepColor = ThemeManager.theme.deepSleepColor;
+    double colorStopMargin = 0.15;
+
+    _sleepCyclePaint.shader = ui.Gradient.linear(
+      Offset(0, 0),
+      Offset(0, size.height),
+      [awakeColor, deepSleepColor],
+      [0 + colorStopMargin, 1.0 - colorStopMargin]
+    );
+
     // TODO lazily extend path as user scrolls to the right
     canvas.drawPath(_graphContext.getFullSleepCyclePath(), _sleepCyclePaint);
   }

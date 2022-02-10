@@ -50,4 +50,6 @@ class NightBlueTheme extends AbstractTheme {
   Color get textColor => _textColor;
   Color get black => _black;
   Color get white => _white;
+  Color get awakeColor => Colors.amber; // .deepPurple[100], .blue[100]
+  Color get deepSleepColor => Colors.blue[600]; // _nightBlue[300]
 }
