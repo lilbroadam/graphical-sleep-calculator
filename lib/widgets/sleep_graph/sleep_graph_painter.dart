@@ -37,7 +37,7 @@ class SleepGraphPainter {
   void _paintSleepCycle(Canvas canvas, Size size) {
     Color awakeColor = ThemeManager.theme.awakeColor;
     Color deepSleepColor = ThemeManager.theme.deepSleepColor;
-    double colorStopMargin = 0.15;
+    double colorStopMargin = ThemeManager.theme.colorStopMargin;
 
     _sleepCyclePaint.shader = ui.Gradient.linear(
       Offset(0, 0),

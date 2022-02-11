@@ -1,5 +1,7 @@
+import 'dart:core';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:graphsleepcalc/config/themes/theme_manager.dart';
 import 'package:graphsleepcalc/widgets/sleep_graph/paintable/sentinel.dart';
 
 class TimeDashboard extends StatefulWidget {
@@ -84,10 +86,34 @@ class _TimeDashboardState extends State<TimeDashboard> {
     var hours = sleepDuration.inHours;
     var minutes = twoDigits(sleepDuration.inMinutes % 60);
     // TODO get 90 (sleep cycle length) from graph context
-    var numCycles = (_sleepDuration.inMinutes / 90).toStringAsFixed(1);
-    // String duration = '${hours}h ${minutes}m';
-    String duration = '${hours}h ${minutes}m (${numCycles}c)';
+    var numCycles = _sleepDuration.inMinutes / 90;
+    String duration = '${hours}h ${minutes}m';
+    // var numCyclesString = numCycles.toStringAsFixed(1);
+    // String duration = '${hours}h ${minutes}m (${numCyclesString}c)';
 
-    return Text(duration, style: _dashboardTextStyle);
+    double gradientPercent = (0.5 - (0.5 - (numCycles % 1.0)).abs()) * 2;
+    // Color awakeColor = ThemeManager.theme.awakeColor;
+    Color awakeColor = Colors.white;
+    Color deepSleepColor = ThemeManager.theme.deepSleepColor;
+    Color gradientColor 
+        = _colorGradientPercent(awakeColor, deepSleepColor, gradientPercent);
+    TextStyle gaugeTextStyle = _dashboardTextStyle.apply(color: gradientColor);
+    return Text(duration, style: gaugeTextStyle);
+  }
+
+  Color _colorGradientPercent(Color color1, Color color2, double percent) {
+    double colorStopMargin = ThemeManager.theme.colorStopMargin;
+    if (percent < colorStopMargin) {
+      return color1;
+    } else if (percent > 1.0 - colorStopMargin) {
+      return color2;
+    }
+
+    percent = ((percent - colorStopMargin) / (1.0 - 2 * colorStopMargin));
+
+    int r = (color1.red + percent * (color2.red - color1.red)).toInt();
+    int g = (color1.green + percent * (color2.green - color1.green)).toInt();
+    int b = (color1.blue + percent * (color2.blue - color1.blue)).toInt();
+    return Color.fromRGBO(r, g, b, 1.0);
   }
 }
