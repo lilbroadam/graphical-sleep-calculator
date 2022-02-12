@@ -60,8 +60,7 @@ abstract class Sentinel extends Paintable {
 
     // Check that [event] is within the chart area
     if (event.localPosition != null
-        && (event.localPosition.dx < _graphContext.sleepCycleMinX
-        || event.localPosition.dy > _graphContext.maxY)) {
+        && event.localPosition.dx < _graphContext.sleepCycleMinX) {
       return false;
     }
 
