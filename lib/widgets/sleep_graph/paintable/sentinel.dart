@@ -82,7 +82,7 @@ abstract class Sentinel extends Paintable {
   @override
   void onHorizontalDragEvent(HorizontalDragEvent event) {
     Offset eventOffset = event.localPosition;
-    if (event is HorizontalDragStartEvent) {
+    if (event is HorizontalDragDownEvent) {
       _draggingSentinel = this;
     } else if (event is HorizontalDragUpdateEvent 
         && this == _draggingSentinel && !isLocked) {

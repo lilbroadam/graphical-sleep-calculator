@@ -79,6 +79,8 @@ class RenderSleepGraph extends RenderBox {
     _painter = new SleepGraphPainter(_graphContext);
 
     _horizontalDragGesture = HorizontalDragGestureRecognizer();
+    _horizontalDragGesture.onDown =
+        (details) => _onGestureEvent(HorizontalDragDownEvent(details));
     _horizontalDragGesture.onStart =
         (details) => _onGestureEvent(HorizontalDragStartEvent(details));
     _horizontalDragGesture.onUpdate =
