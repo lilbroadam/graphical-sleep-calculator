@@ -9,6 +9,12 @@ abstract class GestureEvent {
 
 abstract class HorizontalDragEvent extends GestureEvent {}
 
+class HorizontalDragDownEvent extends HorizontalDragEvent {
+  DragDownDetails details;
+  get localPosition => details.localPosition;
+  HorizontalDragDownEvent(this.details);
+}
+
 class HorizontalDragStartEvent extends HorizontalDragEvent {
   DragStartDetails details;
   get localPosition => details.localPosition;

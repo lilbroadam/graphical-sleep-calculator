@@ -8,7 +8,8 @@ import 'package:intl/intl.dart';
 abstract class Sentinel extends Paintable {
   static const double SENTINEL_DIAMETER = 35.0;
   static const double SENTINEL_RADIUS = SENTINEL_DIAMETER / 2;
-  static const double HIT_BOX_MARGIN = 25.0;
+  static const double HIT_BOX_BODY_MARGIN = 25.0;
+  static const double HIT_BOX_LINE_MARGIN = 10.0;
   static const double SENTINEL_BODY_LINE_MARGIN = 25.0;
 
   // What sentinel is current being dragged. Null if no sentinel being dragged.
@@ -60,8 +61,7 @@ abstract class Sentinel extends Paintable {
 
     // Check that [event] is within the chart area
     if (event.localPosition != null
-        && (event.localPosition.dx < _graphContext.sleepCycleMinX
-        || event.localPosition.dy > _graphContext.maxY)) {
+        && event.localPosition.dx < _graphContext.sleepCycleMinX) {
       return false;
     }
 
@@ -71,19 +71,23 @@ abstract class Sentinel extends Paintable {
       return true;
     }
 
-    // TODO (x + width - offset.dx).abs()
     Offset hitOffset = event.localPosition + _graphContext.viewPane;
-    bool hit = (offset.dx - hitOffset.dx).abs() < HIT_BOX_MARGIN
-            && (offset.dy - hitOffset.dy).abs() < HIT_BOX_MARGIN;
+    double lineMinY = _graphContext.sleepCycleMinY - HIT_BOX_LINE_MARGIN;
+    double lineMaxY = _graphContext.sleepCycleMaxY + HIT_BOX_LINE_MARGIN;
+    bool hitBody = (offset.dx - hitOffset.dx).abs() < HIT_BOX_BODY_MARGIN
+                && (offset.dy - hitOffset.dy).abs() < HIT_BOX_BODY_MARGIN;
+    bool hitLine = (offset.dx - hitOffset.dx).abs() < HIT_BOX_LINE_MARGIN
+                && hitOffset.dy > lineMinY
+                && hitOffset.dy < lineMaxY;
 
-    return hit;
+    return hitBody || hitLine;
   }
 
   // TODO change to private method that children can call
   @override
   void onHorizontalDragEvent(HorizontalDragEvent event) {
     Offset eventOffset = event.localPosition;
-    if (event is HorizontalDragStartEvent) {
+    if (event is HorizontalDragDownEvent) {
       _draggingSentinel = this;
     } else if (event is HorizontalDragUpdateEvent 
         && this == _draggingSentinel && !isLocked) {
