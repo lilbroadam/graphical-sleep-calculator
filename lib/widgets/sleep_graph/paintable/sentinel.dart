@@ -60,7 +60,7 @@ abstract class Sentinel extends Paintable {
     }
 
     // Check that [event] is within the chart area
-    if (event.localPosition != null
+    if (event is! HorizontalDragUpdateEvent && event.localPosition != null
         && event.localPosition.dx < _graphContext.sleepCycleMinX) {
       return false;
     }
@@ -86,26 +86,15 @@ abstract class Sentinel extends Paintable {
   // TODO change to private method that children can call
   @override
   void onHorizontalDragEvent(HorizontalDragEvent event) {
-    Offset eventOffset = event.localPosition;
     if (event is HorizontalDragDownEvent) {
       _draggingSentinel = this;
     } else if (event is HorizontalDragUpdateEvent 
         && this == _draggingSentinel && !isLocked) {
-      setOffset(Offset(eventOffset.dx + _graphContext.viewPane.dx, offset.dy));
+      onHorizontalDragUpdateEvent(event);
     } else if (event is HorizontalDragEndEvent ||
         event is HorizontalDragCancelEvent) {
       _draggingSentinel = null;
     }
-  }
-
-  void setOffset(Offset offset) {
-    this.offset = offset;
-    var minutesPerX 
-        = _graphContext.sleepCycleMinutes / _graphContext.sleepCycleWidth;
-    var xDiff = this.offset.dx - _graphContext.sleepCycleMinX;
-    var minutesOffset = Duration(minutes: (minutesPerX * xDiff).toInt());
-    var time = DateTime.now().add(minutesOffset);
-    notifier.value = time;
   }
 
   double bodyY(GraphContext graphContext) {
@@ -119,6 +108,8 @@ abstract class Sentinel extends Paintable {
 }
 
 class SleepSentinel extends Sentinel {
+  Offset _timeOffset;
+
   final _bigCraterRadius = Sentinel.SENTINEL_RADIUS * 0.3;
   final _mediumCraterRadius = Sentinel.SENTINEL_RADIUS * 0.2;
   final _smallCraterRadius = Sentinel.SENTINEL_RADIUS * 0.15;
@@ -139,9 +130,11 @@ class SleepSentinel extends Sentinel {
     // TODO set bodyPaint by calling super constructor
     bodyPaint = _unlockedBodyPaint;
 
+    this.offset = _initialOffset(0.0);
+    this._timeOffset = _initialOffset(0.0);
+    notifier.value = DateTime.now();
     _graphContext.sleepTimeNotifier = notifier;
-
-    setOffset(_initialOffset(0.0));
+    _graphContext.sleepSentinelX = offset.dx;
   }
 
   /// Have SleepSentinel paint itself at [offset]
@@ -177,14 +170,11 @@ class SleepSentinel extends Sentinel {
   }
 
   @override
-  void setOffset(Offset offset) {
-    if (_graphContext.wakeSentinelX != null 
-        && _graphContext.wakeSentinelX <= offset.dx) {
-      return;
-    }
-
-    super.setOffset(offset);
-    _graphContext.sleepSentinelX = offset.dx;
+  void onHorizontalDragUpdateEvent(HorizontalDragUpdateEvent event) {
+    double dx = event.details.delta.dx;
+    _timeOffset = Offset(_timeOffset.dx + dx, _timeOffset.dy);
+    notifier.value
+        = _graphContext.offsetToDateTime(_timeOffset, DateTime.now());
   }
 }
 
@@ -204,7 +194,7 @@ class WakeSentinel extends Sentinel {
 
     _graphContext.wakeTimeNotifier = notifier;
 
-    setOffset(_initialOffset(3.0));
+    _setOffset(_initialOffset(3.0));
   }
 
   /// Have WakeSentinel paint itself at [offset].
@@ -230,13 +220,19 @@ class WakeSentinel extends Sentinel {
   }
 
   @override
-  void setOffset(Offset offset) {
+  void onHorizontalDragUpdateEvent(HorizontalDragUpdateEvent event) {
+    Offset eventOffset = event.localPosition;
+    _setOffset(Offset(eventOffset.dx + _graphContext.viewPane.dx, offset.dy));
+  }
+
+  void _setOffset(Offset offset) {
     if (_graphContext.sleepSentinelX != null 
         && _graphContext.sleepSentinelX >= offset.dx) {
       return;
     }
 
-    super.setOffset(offset);
+    this.offset = offset;
+    notifier.value = _graphContext.offsetToDateTime(this.offset);
     _graphContext.wakeSentinelX = offset.dx;
   }
 }
