@@ -257,19 +257,15 @@ class TimeLabelsPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     _graphContext.applyViewPane(canvas, size);
 
-    final double y = 0;
     final double minX = _graphContext.sleepCycleMinX;
     final double maxX = _graphContext.size.width;
-    final double cycleWidth = _graphContext.sleepCycleWidth;
-    final int halfCycleMinutes = _graphContext.sleepCycleMinutes ~/ 2;
-    final double halfCycleWidth = cycleWidth / 2;
-    final double numHalfCycles = ((maxX - minX) / cycleWidth) * 2;
-    for (int i = 0; i < numHalfCycles; i++) {
-      String time = Sentinel.formatTimeString(
-          DateTime.now().add(Duration(minutes: i * halfCycleMinutes)));
-      double x = minX + i * halfCycleWidth;
+    final double halfCycleWidth = _graphContext.sleepCycleWidth / 2;
+    for (double x = minX; x < maxX + halfCycleWidth; x += halfCycleWidth) {
+      Offset offset = Offset(x, 0.0);
+      DateTime dateTime = _graphContext.offsetToDateTime(offset);
+      String time = Sentinel.formatTimeString(dateTime);
 
-      _paintTimeStamp(canvas, size, time, Offset(x, y));
+      _paintTimeStamp(canvas, size, time, offset);
     }
   }
 

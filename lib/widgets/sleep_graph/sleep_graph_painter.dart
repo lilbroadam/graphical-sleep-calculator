@@ -23,6 +23,13 @@ class SleepGraphPainter {
     _sleepSentinel = SleepSentinel(_graphContext);
     _wakeSentinel = WakeSentinel(_graphContext);
 
+    // Keep wake time based on current sleep time
+    _sleepSentinel.notifier.addListener(() {
+      Offset wakeSentinelOffset = Offset(_graphContext.wakeSentinelX, 0.0);
+      _wakeSentinel.notifier.value
+          = _graphContext.offsetToDateTime(wakeSentinelOffset);
+    });
+
     _paintables.add(_sleepSentinel);
     _paintables.add(_wakeSentinel);
   }

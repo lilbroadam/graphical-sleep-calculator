@@ -118,4 +118,16 @@ class GraphContext {
       // TODO
     }
   }
+
+  /// Return the [DateTime] that [offset.dx] corresponds to.
+  DateTime offsetToDateTime(Offset offset, [DateTime startTime]) {
+    if (startTime == null) {
+      startTime = sleepTimeNotifier.value;
+    }
+
+    double minutesPerX = sleepCycleMinutes / sleepCycleWidth;
+    double xDiff = offset.dx - sleepSentinelX;
+    Duration timeDiff = Duration(minutes: (xDiff * minutesPerX).toInt());
+    return startTime.add(timeDiff);
+  }
 }

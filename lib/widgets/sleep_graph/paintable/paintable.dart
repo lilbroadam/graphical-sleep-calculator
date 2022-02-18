@@ -19,4 +19,5 @@ abstract class Paintable {
   void onGestureEvent(GestureEvent event);
   void onTapEvent(TapEvent event);
   void onHorizontalDragEvent(HorizontalDragEvent event);
+  void onHorizontalDragUpdateEvent(HorizontalDragUpdateEvent event);
 }
