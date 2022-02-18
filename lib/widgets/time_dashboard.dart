@@ -94,9 +94,9 @@ class _TimeDashboardState extends State<TimeDashboard> {
     double gradientPercent = (0.5 - (0.5 - (numCycles % 1.0)).abs()) * 2;
     // Color awakeColor = ThemeManager.theme.awakeColor;
     Color awakeColor = Colors.white;
-    Color deepSleepColor = ThemeManager.theme.deepSleepColor;
+    Color warningColor = ThemeManager.theme.wakeWarningColor;
     Color gradientColor 
-        = _colorGradientPercent(awakeColor, deepSleepColor, gradientPercent);
+        = _colorGradientPercent(awakeColor, warningColor, gradientPercent);
     TextStyle gaugeTextStyle = _dashboardTextStyle.apply(color: gradientColor);
     return Text(duration, style: gaugeTextStyle);
   }
