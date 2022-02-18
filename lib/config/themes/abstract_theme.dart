@@ -10,5 +10,6 @@ abstract class AbstractTheme {
   Color get white => Color(0xffffffff);
   Color get awakeColor;
   Color get deepSleepColor;
+  Color get wakeWarningColor => Colors.red[400];
   double get colorStopMargin => 0.15;
 }
